@@ -1,89 +1,737 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Welcome to Firebase Hosting</title>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sem Fronteiras - Formulários</title>
 
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/12.4.0/firebase-app-compat.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/12.4.0/firebase-auth-compat.js"></script>
-    <script defer src="/__/firebase/12.4.0/firebase-database-compat.js"></script>
-    <script defer src="/__/firebase/12.4.0/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/12.4.0/firebase-functions-compat.js"></script>
-    <script defer src="/__/firebase/12.4.0/firebase-messaging-compat.js"></script>
-    <script defer src="/__/firebase/12.4.0/firebase-storage-compat.js"></script>
-    <script defer src="/__/firebase/12.4.0/firebase-analytics-compat.js"></script>
-    <script defer src="/__/firebase/12.4.0/firebase-remote-config-compat.js"></script>
-    <script defer src="/__/firebase/12.4.0/firebase-performance-compat.js"></script>
-    <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+    <link rel="icon" type="image/png" href="android-icon-192x192.png"> 
+    
+    <meta name="theme-color" content="#007bff">
+    <link rel="apple-touch-icon" href="android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="android-icon-512x512.png">
+    <link rel="manifest" href="/manifest.json"> <style>
+        /* Estilos gerais e de fundo */
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #007bff 0%, #00c6ff 100%);
+            background-attachment: fixed;
+            min-height: 100vh; 
+            position: relative; 
+            padding-bottom: 40px;
+            font-size: 16px; 
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2); 
+            padding: 25px;
+            position: relative;
+        }
+        /* ESTILO: Logomarca */
+        .logo {
+            display: block;
+            width: 80%; 
+            max-width: 350px;
+            height: auto;
+            margin: 0 auto 10px auto; 
+        }
+        /* Ajuste de margem do Título do Formulário */
+        #form-screen .logo-header {
+             margin-bottom: 20px;
+        }
 
-    <style media="screen">
-      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
-      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
-      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #ffa100; }
-      }
+        h2 {
+            text-align: center;
+            margin-bottom: 0; 
+            font-size: 1.5em; 
+        }
+        .hidden {
+            display: none;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            font-size: 1em; 
+            padding: 8px;
+            margin-top: 4px;
+            border: 1px solid #ccc;
+            border-radius: 6px; 
+            box-sizing: border-box;
+        }
+        
+        /* Container para o campo de coordenada e botão de busca */
+        .input-group {
+            display: flex;
+            margin-top: 4px;
+            flex-wrap: wrap; 
+        }
+        
+        /* INPUT DENTRO DO INPUT-GROUP (Desktop) */
+        .input-group input {
+            flex-grow: 1; /* Permite que o input preencha o espaço restante */
+            margin-top: 0;
+            border-radius: 6px; 
+            border-right: 1px solid #ccc;
+            /* Margem à direita para separar do primeiro botão */
+            margin-right: 5px; 
+        }
+        
+        /* Ajuste fino da altura e margem dos botões */
+        .input-group button {
+            margin-top: 0;
+            padding: 0 15px;
+            /* Altura ajustada para bater com a altura do input */
+            height: 36.8px; 
+            border-radius: 6px; 
+            flex-shrink: 0; /* Impede que os botões diminuam */
+            /* Margem para separar dos outros botões */
+            margin-right: 5px; 
+        }
+        
+        /* NOVO: Remove a margem do ÚLTIMO botão no grupo (para alinhar a direita) */
+        .input-group button:last-child {
+            margin-right: 0;
+        }
+
+        /* Estilo para o botão "GPS" */
+        .gps-button {
+            background-color: #ff9800 !important;
+            padding: 0 10px; /* Um pouco mais apertado para caber */
+        }
+
+        /* Estilo para campos não editáveis */
+        input:read-only {
+            background-color: #f0f0f0;
+            cursor: default;
+        }
+        /* Estilo para o campo de link */
+        input.link-field {
+            cursor: pointer;
+            color: #007bff;
+            text-decoration: underline;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: inner-spin-button;
+            margin: 0;
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        button {
+            margin-top: 15px;
+            padding: 10px 15px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em; 
+            transition: 0.2s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .limpar {
+            background-color: #dc3545;
+        }
+        .limpar:hover {
+            background-color: #a71d2a;
+        }
+        .mensagem {
+            display: none;
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            z-index: 10;
+            animation: fadeInOut 2.5s;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; top: -20px; }
+            10% { opacity: 1; top: 10px; }
+            90% { opacity: 1; top: 10px; }
+            100% { opacity: 0; top: -20px; }
+        }
+        
+        /* Estilo Padrão para o botão de voltar (Desktop) */
+        .back-button {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            background: #6c757d;
+            z-index: 5; 
+        }
+        .back-button:hover {
+            background: #5a6268;
+        }
+
+        /* Estilo específico para os botões da tela inicial */
+        #home-buttons {
+            margin-top: 60px;
+        }
+        #home-buttons button {
+            width: 45%;
+            padding: 20px;
+            font-size: 1.2em; 
+        }
+
+        /* Estilo do Rodapé */
+        .footer {
+            position: absolute;
+            right: 20px;
+            bottom: 10px;
+            color: #fff;
+            font-size: 0.8em; 
+            font-weight: bold;
+        }
+
+        /* --- MEDIA QUERY PARA CELULARES --- */
+        @media (max-width: 500px) {
+            .container {
+                padding: 15px; 
+            }
+            .back-button {
+                position: static; 
+                display: block;
+                width: 100%;
+                margin: 0 0 15px 0; 
+            }
+            #form-screen .logo-header {
+                margin-top: 15px;
+            }
+            
+            /* Ajusta o input-group em telas pequenas */
+            .input-group {
+                flex-wrap: wrap; 
+            }
+            .input-group input {
+                /* Ocupa toda a largura em celular */
+                width: 100%;
+                flex-basis: 100%; 
+                margin-bottom: 5px; /* Espaçamento vertical */
+                margin-right: 0; /* Remove a margem lateral */
+            }
+            
+            /* Faz com que os botões de busca ocupem metade da largura cada (com espaçamento) */
+            .input-group button {
+                flex-basis: 48%; 
+                height: auto;
+                padding: 8px;
+                margin-right: 0; /* Remove a margem padrão */
+            }
+            
+            /* Adiciona margem apenas no primeiro botão quando há dois (Buscar e GPS) */
+            .input-group:has(button:nth-child(3)) button:nth-child(2) {
+                 margin-right: 5px; 
+            }
+            
+            /* Garante que o botão único (Coordenadas) ocupe 100% */
+            .input-group:has(button:only-child) button:only-child {
+                flex-basis: 100%;
+            }
+        }
     </style>
-  </head>
-  <body>
-    <div id="message">
-      <h2>Welcome</h2>
-      <h1>Firebase Hosting Setup Complete</h1>
-      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
-      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
+</head>
+<body onload="showScreen('home')">
+    <div class="container">
+        <div id="mensagem" class="mensagem"></div>
+        
+        <div id="home-screen">
+            <img src="https://i.imgur.com/dvzRyus.png" alt="Logomarca Sem Fronteiras" class="logo">
+            <br>
+            <br>
+            <h2>Favor escolher uma das opções abaixo:</h2>
+
+            <div class="button-group" id="home-buttons">
+                <button type="button" onclick="showForm('implantacao')">Implantação</button>
+                <button type="button" onclick="showForm('ampliacao')">Ampliação</button>
+            </div>
+        </div>
+
+        <div id="form-screen" class="hidden">
+            <button type="button" class="back-button" id="back-btn" onclick="showScreen('home')">Voltar</button>
+
+            <img src="https://i.imgur.com/dvzRyus.png" alt="Logomarca Sem Fronteiras" class="logo logo-header">
+            <h2 id="titulo"></h2> 
+            
+            <form id="implantacao" class="hidden">
+                <label>Coordenadas (Lat, Lon):</label>
+                <div class="input-group">
+                    <input type="text" id="coordenadasImplantacao" onfocus="this.select()">
+                    <button type="button" onclick="geocodificarCoordenadas('implantacao')">Buscar</button>
+                </div>
+
+                <label>Endereço:</label>
+                <div class="input-group">
+                    <input type="text" id="enderecoImplantacao"> 
+                    <button type="button" onclick="geocodificarEndereco('implantacao')">Buscar</button>
+                    <button type="button" onclick="buscarPorLocalizacaoAtual('implantacao')" class="gps-button">GPS</button>
+                </div>
+
+                <label>Localização (Link do Mapa):</label>
+                <input type="text" id="localizacaoImplantacao" class="link-field" onclick="abrirLink('implantacao')" readonly placeholder="Link aparecerá aqui após a busca">
+
+                <label>Responsável pelo pedido:</label>
+                <input type="text" id="responsavelImplantacao">
+
+                <label>Motivo da solicitação:</label>
+                <textarea id="motivoImplantacao"></textarea>
+
+                <div class="action-buttons">
+                    <button type="button" onclick="gerarTexto('implantacao')">Gerar</button>
+                    <button type="button" class="limpar" onclick="limparFormulario('implantacao')">Limpar</button>
+                </div>
+            </form>
+
+            <form id="ampliacao" class="hidden">
+                <label>Coordenadas (Lat, Lon):</label>
+                <div class="input-group">
+                    <input type="text" id="coordenadasAmpliacao" onfocus="this.select()">
+                    <button type="button" onclick="geocodificarCoordenadas('ampliacao')">Buscar</button>
+                </div>
+
+                <label>Endereço:</label>
+                <div class="input-group">
+                    <input type="text" id="enderecoAmpliacao">
+                    <button type="button" onclick="geocodificarEndereco('ampliacao')">Buscar</button>
+                    <button type="button" onclick="buscarPorLocalizacaoAtual('ampliacao')" class="gps-button">GPS</button>
+                </div>
+
+                <label>Localização (Link do Mapa):</label>
+                <input type="text" id="localizacaoAmpliacao" class="link-field" onclick="abrirLink('ampliacao')" readonly placeholder="Link aparecerá aqui após a busca">
+
+                <label>Quantidade:</label>
+                <input type="number" id="quantidadeAmpliacao" min="1" step="1" value="1">
+
+                <label>Projeto:</label>
+                <select id="projetoAmpliacao" onchange="atualizarOLT('ampliacao')">
+                    <option value="">Selecione um projeto</option>
+                    <option>FTTH Albert Sampaio</option>
+                    <option>FTTH Assis Brasil</option>
+                    <option>FTTH Benfica</option>
+                    <option>FTTH Bujari</option>
+                    <option>FTTH Cidade do Povo</option>
+                    <option>FTTH Maison Borges</option>
+                    <option>FTTH Município do Quinari</option>
+                    <option>FTTH Ouricuri</option>
+                    <option>FTTH Parte Alta 2</option>
+                    <option>FTTH Primeiro Distrito Data Center VLG</option>
+                    <option>FTTH Primeiro Distrito Esperança</option>
+                    <option>FTTH Primeiro Distrito Sobral</option>
+                    <option>FTTH Primeiro Distrito XGPON</option>
+                    <option>FTTH Segundo Distrito Belo Jardim</option>
+                    <option>FTTH Segundo Distrito Bom Jesus</option>
+                    <option>FTTH Sena Madureira</option>
+                    <option>FTTH Tancredo Neves</option>
+                    <option>FTTH Taquari</option>
+                    <option>FTTH Xavier Maia</option>
+                </select>
+
+                <label>OLT:</label>
+                <input type="text" id="oltAmpliacao" readonly>
+
+                <label>ID:</label>
+                <input type="text" id="idAmpliacao">
+
+                <label>Responsável pelo pedido:</label>
+                <input type="text" id="responsavelAmpliacao">
+
+                <label>Motivo da solicitação:</label>
+                <textarea id="motivoAmpliacao"></textarea>
+
+                <div class="action-buttons">
+                    <button type="button" onclick="gerarTexto('ampliacao')">Gerar</button>
+                    <button type="button" class="limpar" onclick="limparFormulario('ampliacao')">Limpar</button>
+                </div>
+            </form>
+        </div>
     </div>
-    <p id="load">Firebase SDK Loading&hellip;</p>
+    <div class="footer">
+        Criado por Jhulio Cezar
+    </div>
 
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const loadEl = document.querySelector('#load');
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        // // The Firebase SDK is initialized and available here!
-        //
-        // firebase.auth().onAuthStateChanged(user => { });
-        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-        // firebase.firestore().doc('/foo/bar').get().then(() => { });
-        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
-        // firebase.messaging().requestPermission().then(() => { });
-        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-        // firebase.analytics(); // call to activate
-        // firebase.analytics().logEvent('tutorial_completed');
-        // firebase.performance(); // call to activate
-        //
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+        const oltMap = {
+            "FTTH Albert Sampaio": "Cidade do Povo",
+            "FTTH Assis Brasil": "Assis Brasil",
+            "FTTH Benfica": "Benfica",
+            "FTTH Bujari": "Bujari",
+            "FTTH Cidade do Povo": "Cidade do Povo",
+            "FTTH Maison Borges": "Maison Borges/Alphaville Custódio",
+            "FTTH Município do Quinari": "Quinari",
+            "FTTH Ouricuri": "Ouricuri",
+            "FTTH Parte Alta 2": "Parte Alta",
+            "FTTH Primeiro Distrito Data Center VLG": "Parte Alta",
+            "FTTH Primeiro Distrito Esperança": "Esperança/Calafate",
+            "FTTH Primeiro Distrito Sobral": "Sobral/XGPON",
+            "FTTH Primeiro Distrito XGPON": "XGPON",
+            "FTTH Segundo Distrito Belo Jardim": "Segundo Distrito",
+            "FTTH Segundo Distrito Bom Jesus": "Bom Jesus",
+            "FTTH Sena Madureira": "Sena Madureira",
+            "FTTH Tancredo Neves": "Parte Alta",
+            "FTTH Taquari": "Segundo Distrito",
+            "FTTH Xavier Maia": "Parte Alta"
+        };
 
-        try {
-          let app = firebase.app();
-          let features = [
-            'auth', 
-            'database', 
-            'firestore',
-            'functions',
-            'messaging', 
-            'storage', 
-            'analytics', 
-            'remoteConfig',
-            'performance',
-          ].filter(feature => typeof app[feature] === 'function');
-          loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-        } catch (e) {
-          console.error(e);
-          loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
         }
-      });
+
+        function showScreen(screenType) {
+            const home = document.getElementById("home-screen");
+            const formScreen = document.getElementById("form-screen");
+            const backBtn = document.getElementById("back-btn");
+
+            if (screenType === 'home') {
+                home.classList.remove("hidden");
+                formScreen.classList.add("hidden");
+                backBtn.classList.add("hidden"); 
+            } else if (screenType === 'form') {
+                home.classList.add("hidden");
+                formScreen.classList.remove("hidden");
+                backBtn.classList.remove("hidden");
+            }
+        }
+
+        function showForm(type) {
+            showScreen('form');
+            
+            document.getElementById("implantacao").classList.add("hidden");
+            document.getElementById("ampliacao").classList.add("hidden");
+            
+            document.getElementById(type).classList.remove("hidden");
+
+            const titulo = document.getElementById("titulo");
+            titulo.textContent = type === "implantacao" ? "Formulário de Implantação" : "Formulário de Ampliação";
+            
+            setAddressFieldsEditable(type, true);
+            setCoordenadasEditable(type, true);
+        }
+
+        function atualizarOLT(formType) {
+            if (formType === 'implantacao') return;
+            
+            const projetoSelect = document.getElementById(`projeto${capitalize(formType)}`);
+            const oltField = document.getElementById(`olt${capitalize(formType)}`);
+            oltField.value = oltMap[projetoSelect.value] || "";
+        }
+        
+        function abrirLink(tipo) {
+            const link = document.getElementById(`localizacao${capitalize(tipo)}`).value;
+            if (link && (link.startsWith('http://') || link.startsWith('https://'))) {
+                window.open(link, '_blank');
+            } else {
+                mostrarMensagem("Link de Localização inválido ou não disponível.", 'erro');
+            }
+        }
+
+        // FUNÇÃO: Captura a localização atual via GPS
+        function buscarPorLocalizacaoAtual(tipo) {
+            mostrarMensagem("Aguardando localização GPS...", 'sucesso');
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        const coordenadas = `${lat}, ${lon}`;
+
+                        // 1. Preenche o campo Coordenadas
+                        document.getElementById(`coordenadas${capitalize(tipo)}`).value = coordenadas;
+                        
+                        // 2. Chama a função que já faz a busca reversa de endereço e preenche os demais campos
+                        geocodificarCoordenadas(tipo);
+                    },
+                    (error) => {
+                        let msgErro = "Erro ao obter localização. Verifique as permissões de GPS.";
+                        if (error.code === 1) {
+                            msgErro = "Acesso à localização negado. Por favor, permita o uso do GPS nas configurações do seu aparelho/navegador.";
+                        }
+                        mostrarMensagem(msgErro, 'erro');
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 5000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                mostrarMensagem("Geolocalização não suportada neste navegador/aparelho.", 'erro');
+            }
+        }
+
+
+        function setAddressFieldsEditable(tipo, editable) {
+            const endereco = document.getElementById(`endereco${capitalize(tipo)}`);
+            const localizacao = document.getElementById(`localizacao${capitalize(tipo)}`);
+            
+            endereco.readOnly = !editable;
+            localizacao.readOnly = !editable;
+            
+            localizacao.classList.toggle('link-field', !editable); 
+        }
+
+        function setCoordenadasEditable(tipo, editable) {
+            const coordenadas = document.getElementById(`coordenadas${capitalize(tipo)}`);
+            coordenadas.readOnly = !editable;
+        }
+
+        async function geocodificarCoordenadas(tipo) {
+            const coordenadasInput = document.getElementById(`coordenadas${capitalize(tipo)}`).value.trim();
+            
+            preencherCamposEndereco(tipo, "", "Link não disponível.");
+            setAddressFieldsEditable(tipo, true);
+            setCoordenadasEditable(tipo, true);
+
+
+            if (!coordenadasInput) {
+                mostrarMensagem("Insira as coordenadas antes de buscar.", 'erro');
+                return;
+            }
+
+            const partes = coordenadasInput.replace(/,/g, ' ').split(/\s+/).filter(p => p);
+            
+            if (partes.length < 2 || isNaN(parseFloat(partes[0])) || isNaN(parseFloat(partes[1]))) {
+                mostrarMensagem("Formato de coordenadas inválido. Permita a digitação manual.", 'erro');
+                return;
+            }
+
+            const lat = parseFloat(partes[0]);
+            const lon = parseFloat(partes[1]);
+            
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`;
+            
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'User-Agent': 'FormularioImplatacaoAmpliacao/1.0' 
+                    }
+                });
+                const data = await response.json();
+
+                if (response.ok && data.address) {
+                    
+                    // 1. CONSTRUÇÃO DO ENDEREÇO
+                    const addr = data.address;
+                    const rua = addr.road || addr.footway || addr.pedestrian || addr.path || 'Rua/Via desconhecida';
+                    const numero = addr.house_number || '';
+                    const cidade = addr.city || addr.town || addr.municipality || '';
+                    const estado = addr.state_abbr || addr.state || '';
+                    const cep = addr.postcode || '';
+                    const pais = addr.country || '';
+
+                    let enderecoCompleto = `${rua}`;
+                    if (numero) enderecoCompleto += `, ${numero}`;
+                    if (cidade && estado) {
+                        enderecoCompleto += `, ${cidade} - ${estado}`;
+                    } else if (cidade) {
+                        enderecoCompleto += `, ${cidade}`;
+                    } else if (estado) {
+                        enderecoCompleto += `, ${estado}`;
+                    }
+                    if (cep) enderecoCompleto += `, CEP: ${cep}`;
+                    if (pais) enderecoCompleto += `, ${pais}`;
+                    
+                    enderecoCompleto = enderecoCompleto.replace(/^,\s*/, '').trim();
+
+                    // 2. CONSTRUÇÃO DO LINK DE LOCALIZAÇÃO (Google Maps)
+                    const localizacaoLink = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`; // Link corrigido
+
+                    preencherCamposCoordenada(tipo, `${lat}, ${lon}`); 
+                    preencherCamposEndereco(tipo, enderecoCompleto, localizacaoLink);
+                    
+                    setAddressFieldsEditable(tipo, false);
+                    setCoordenadasEditable(tipo, false);
+                    mostrarMensagem("Endereço e Link de Localização preenchidos automaticamente.");
+
+                } else {
+                    console.error('Geocodificação Reversa falhou:', data);
+                    mostrarMensagem("Não foi possível encontrar o endereço. Digite manualmente.", 'erro');
+                    
+                    setAddressFieldsEditable(tipo, true);
+                    setCoordenadasEditable(tipo, true);
+                }
+
+            } catch (error) {
+                console.error('Erro na requisição Nominatim:', error);
+                mostrarMensagem("Erro de conexão. Digite o endereço e localização manualmente.", 'erro');
+                setAddressFieldsEditable(tipo, true);
+                setCoordenadasEditable(tipo, true);
+            }
+        }
+        
+        async function geocodificarEndereco(tipo) {
+            let enderecoInput = document.getElementById(`endereco${capitalize(tipo)}`).value.trim();
+            const enderecoOriginal = enderecoInput; 
+            
+            preencherCamposCoordenada(tipo, ""); 
+            preencherCamposEndereco(tipo, enderecoOriginal, "Link não disponível.");
+            setAddressFieldsEditable(tipo, true);
+            setCoordenadasEditable(tipo, true);
+
+            if (!enderecoInput) {
+                mostrarMensagem("Insira um endereço antes de buscar.", 'erro');
+                return;
+            }
+
+            // Limpeza da string para o Nominatim
+            enderecoInput = enderecoInput.replace(/(,\s*|)\s*CEP\s*[:\s]*[\d\-]{6,9}/gi, ''); 
+            enderecoInput = enderecoInput.replace(/(,\s*|)\s*(Brasil|Brazil)\s*$/gi, '').trim(); 
+            enderecoInput = enderecoInput.replace(/\s+/g, ' ').replace(/,,\s*/g, ', ').trim();
+
+
+            const query = encodeURIComponent(enderecoInput);
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`;
+
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'User-Agent': 'FormularioImplatacaoAmpliacao/1.0'
+                    }
+                });
+                const data = await response.json();
+
+                if (response.ok && data.length > 0) {
+                    const resultado = data[0];
+                    const lat = resultado.lat;
+                    const lon = resultado.lon;
+                    const coordenadas = `${lat}, ${lon}`;
+                    
+                    const localizacaoLink = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`; // Link corrigido
+                    
+                    preencherCamposCoordenada(tipo, coordenadas); 
+                    preencherCamposEndereco(tipo, enderecoOriginal, localizacaoLink); 
+                    
+                    setAddressFieldsEditable(tipo, false);
+                    setCoordenadasEditable(tipo, false);
+                    mostrarMensagem("Coordenadas e Link de Localização preenchidos pelo endereço.");
+
+                } else {
+                    console.error('Geocodificação de Endereço falhou:', data);
+                    mostrarMensagem("Endereço não encontrado. Por favor, ajuste a digitação.", 'erro');
+                }
+
+            } catch (error) {
+                console.error('Erro na requisição Nominatim:', error);
+                mostrarMensagem("Erro de conexão ao buscar endereço. Tente novamente.", 'erro');
+            }
+        }
+
+
+        function preencherCamposEndereco(tipo, endereco, localizacao) {
+            document.getElementById(`endereco${capitalize(tipo)}`).value = endereco;
+            document.getElementById(`localizacao${capitalize(tipo)}`).value = localizacao;
+        }
+        
+        function preencherCamposCoordenada(tipo, coordenadas) {
+            document.getElementById(`coordenadas${capitalize(tipo)}`).value = coordenadas;
+        }
+
+
+        function gerarTexto(tipo) {
+            let texto = "";
+
+            if (tipo === "implantacao") {
+                texto += `Dados da Implantação\n\n`;
+                texto += `Endereço: ${document.getElementById("enderecoImplantacao").value}\n\n`;
+                texto += `Localização: ${document.getElementById("localizacaoImplantacao").value}\n\n`;
+                texto += `Coordenadas: ${document.getElementById("coordenadasImplantacao").value}\n\n`;
+                texto += `Responsável pelo pedido: ${document.getElementById("responsavelImplantacao").value}\n\n`;
+                texto += `Motivo da solicitação: ${document.getElementById("motivoImplantacao").value}\n\n`;
+            } else {
+                texto += `Dados da Ampliação\n\n`;
+                texto += `Endereço: ${document.getElementById("enderecoAmpliacao").value}\n\n`;
+                texto += `Localização: ${document.getElementById("localizacaoAmpliacao").value}\n\n`;
+                texto += `Coordenadas: ${document.getElementById("coordenadasAmpliacao").value}\n\n`;
+                texto += `Quantidade: ${document.getElementById("quantidadeAmpliacao").value}\n\n`;
+                texto += `Projeto: ${document.getElementById("projetoAmpliacao").value}\n\n`;
+                texto += `OLT: ${document.getElementById("oltAmpliacao").value}\n\n`;
+                texto += `ID: ${document.getElementById("idAmpliacao").value}\n\n`;
+                texto += `Responsável pelo pedido: ${document.getElementById("responsavelAmpliacao").value}\n\n`;
+                texto += `Motivo da solicitação: ${document.getElementById("motivoAmpliacao").value}\n\n`;
+            }
+
+            // Validação de campos
+            const coords = document.getElementById(`coordenadas${capitalize(tipo)}`).value;
+            const address = document.getElementById(`endereco${capitalize(tipo)}`).value;
+            const link = document.getElementById(`localizacao${capitalize(tipo)}`).value;
+            const responsavel = document.getElementById(`responsavel${capitalize(tipo)}`).value;
+
+            if (!coords || !address || !link || !responsavel) {
+                mostrarMensagem("Preencha as Coordenadas, Endereço, Localização (Link) e Responsável antes de gerar.", 'erro');
+                return;
+            }
+
+            navigator.clipboard.writeText(texto);
+            mostrarMensagem("As informações foram copiadas com sucesso!");
+        }
+
+        function limparFormulario(tipo) {
+            const form = document.getElementById(tipo);
+            form.reset();
+            
+            if (tipo === 'ampliacao') {
+                const oltField = document.getElementById(`olt${capitalize(tipo)}`);
+                oltField.value = "";
+            }
+
+            setAddressFieldsEditable(tipo, true); 
+            setCoordenadasEditable(tipo, true);
+            mostrarMensagem("Formulário limpo com sucesso!");
+        }
+
+        function mostrarMensagem(texto, tipo = 'sucesso') {
+            const msg = document.getElementById("mensagem");
+            msg.textContent = texto;
+
+            if (tipo === 'erro') {
+                msg.style.backgroundColor = '#dc3545';
+            } else {
+                msg.style.backgroundColor = '#28a745';
+            }
+
+            msg.style.display = "block";
+            
+            msg.style.animation = 'none';
+            void msg.offsetWidth;
+            msg.style.animation = 'fadeInOut 2.5s';
+
+            setTimeout(() => {
+                msg.style.display = "none";
+            }, 2500);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            showScreen('home'); 
+            setAddressFieldsEditable('implantacao', true);
+            setAddressFieldsEditable('ampliacao', true);
+            setCoordenadasEditable('implantacao', true);
+            setCoordenadasEditable('ampliacao', true);
+        });
     </script>
-  </body>
+</body>
 </html>
