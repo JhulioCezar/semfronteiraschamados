@@ -80,43 +80,35 @@
         
         /* INPUT DENTRO DO INPUT-GROUP (Desktop) */
         .input-group input {
-            flex-grow: 1; /* Permite que o input preencha o espaço restante */
+            flex-grow: 1;
             margin-top: 0;
             border-radius: 6px; 
             border-right: 1px solid #ccc;
-            /* Margem à direita para separar do primeiro botão */
             margin-right: 5px; 
         }
         
-        /* Ajuste fino da altura e margem dos botões */
         .input-group button {
             margin-top: 0;
             padding: 0 15px;
-            /* Altura ajustada para bater com a altura do input */
             height: 36.8px; 
             border-radius: 6px; 
-            flex-shrink: 0; /* Impede que os botões diminuam */
-            /* Margem para separar dos outros botões */
+            flex-shrink: 0;
             margin-right: 5px; 
         }
         
-        /* NOVO: Remove a margem do ÚLTIMO botão no grupo (para alinhar a direita) */
         .input-group button:last-child {
             margin-right: 0;
         }
 
-        /* Estilo para o botão "GPS" */
         .gps-button {
             background-color: #ff9800 !important;
-            padding: 0 10px; /* Um pouco mais apertado para caber */
+            padding: 0 10px;
         }
 
-        /* Estilo para campos não editáveis */
         input:read-only {
             background-color: #f0f0f0;
             cursor: default;
         }
-        /* Estilo para o campo de link */
         input.link-field {
             cursor: pointer;
             color: #007bff;
@@ -149,6 +141,10 @@
         button:hover {
             background-color: #0056b3;
         }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
         .action-buttons {
             display: flex;
             justify-content: space-between;
@@ -159,6 +155,12 @@
         }
         .limpar:hover {
             background-color: #a71d2a;
+        }
+        .validar {
+            background-color: #17a2b8;
+        }
+        .validar:hover {
+            background-color: #138496;
         }
         .mensagem {
             display: none;
@@ -180,7 +182,6 @@
             100% { opacity: 0; top: -20px; }
         }
         
-        /* Estilo Padrão para o botão de voltar (Desktop) */
         .back-button {
             position: absolute;
             top: 25px;
@@ -192,7 +193,6 @@
             background: #5a6268;
         }
 
-        /* Estilo específico para os botões da tela inicial */
         #home-buttons {
             margin-top: 60px;
         }
@@ -202,7 +202,6 @@
             font-size: 1.2em; 
         }
 
-        /* Estilo do Rodapé */
         .footer {
             position: absolute;
             right: 20px;
@@ -210,6 +209,76 @@
             color: #fff;
             font-size: 0.8em; 
             font-weight: bold;
+        }
+
+        /* Estilo para o alerta customizado */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        
+        .modal-content h3 {
+            color: #dc3545;
+            margin-top: 0;
+        }
+        
+        .modal-content p {
+            margin: 15px 0;
+            line-height: 1.5;
+        }
+        
+        .modal-content button {
+            margin: 10px;
+            min-width: 100px;
+        }
+        
+        .modal-content .btn-confirmar {
+            background-color: #28a745;
+        }
+        
+        .modal-content .btn-cancelar {
+            background-color: #dc3545;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .status-valido {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .status-invalido {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .status-verificando {
+            background-color: #ffc107;
+            color: black;
         }
 
         /* --- MEDIA QUERY PARA CELULARES --- */
@@ -227,32 +296,27 @@
                 margin-top: 15px;
             }
             
-            /* Ajusta o input-group em telas pequenas */
             .input-group {
                 flex-wrap: wrap; 
             }
             .input-group input {
-                /* Ocupa toda a largura em celular */
                 width: 100%;
                 flex-basis: 100%; 
-                margin-bottom: 5px; /* Espaçamento vertical */
-                margin-right: 0; /* Remove a margem lateral */
+                margin-bottom: 5px;
+                margin-right: 0;
             }
             
-            /* Faz com que os botões de busca ocupem metade da largura cada (com espaçamento) */
             .input-group button {
                 flex-basis: 48%; 
                 height: auto;
                 padding: 8px;
-                margin-right: 0; /* Remove a margem padrão */
+                margin-right: 0;
             }
             
-            /* Adiciona margem apenas no primeiro botão quando há dois (Buscar e GPS) */
             .input-group:has(button:nth-child(3)) button:nth-child(2) {
                  margin-right: 5px; 
             }
             
-            /* Garante que o botão único (Coordenadas) ocupe 100% */
             .input-group:has(button:only-child) button:only-child {
                 flex-basis: 100%;
             }
@@ -262,6 +326,18 @@
 <body onload="showScreen('home')">
     <div class="container">
         <div id="mensagem" class="mensagem"></div>
+        
+        <!-- Modal de confirmação personalizado -->
+        <div id="confirmModal" class="modal-overlay">
+            <div class="modal-content">
+                <h3>⚠️ ID já cadastrado!</h3>
+                <p id="modalMessage">Carregando...</p>
+                <div>
+                    <button class="btn-confirmar" onclick="confirmarContinuar(true)">Continuar</button>
+                    <button class="btn-cancelar" onclick="confirmarContinuar(false)">Cancelar</button>
+                </div>
+            </div>
+        </div>
         
         <div id="home-screen">
             <img src="https://i.imgur.com/dvzRyus.png" alt="Logomarca Sem Fronteiras" class="logo">
@@ -359,7 +435,10 @@
                 <input type="text" id="oltAmpliacao" readonly>
 
                 <label>ID:</label>
-                <input type="text" id="idAmpliacao">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="text" id="idAmpliacao" onblur="verificarIdAmpliacao()" placeholder="Digite o ID">
+                    <span id="statusId" class="status-indicator status-verificando" style="display: none;">Verificando...</span>
+                </div>
 
                 <label>Responsável pelo pedido:</label>
                 <input type="text" id="responsavelAmpliacao">
@@ -368,7 +447,8 @@
                 <textarea id="motivoAmpliacao"></textarea>
 
                 <div class="action-buttons">
-                    <button type="button" onclick="gerarTexto('ampliacao')">Gerar</button>
+                    <button type="button" onclick="gerarTexto('ampliacao')" id="btnGerarAmpliacao">Gerar</button>
+                    <button type="button" class="validar" onclick="validarEConfirmarAmpliacao()">Validar ID</button>
                     <button type="button" class="limpar" onclick="limparFormulario('ampliacao')">Limpar</button>
                 </div>
             </form>
@@ -379,6 +459,9 @@
     </div>
 
     <script>
+        // CONFIGURAÇÃO - SUBSTITUA PELA SUA URL DO APPS SCRIPT
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwKnswKrS3VtffoqYw2hPKGCvb5ksrvpzB-2jFN7OPGPCTWcMoySaELGsesQqFGbJBFeg/exec';
+        
         const oltMap = {
             "FTTH Albert Sampaio": "Cidade do Povo",
             "FTTH Assis Brasil": "Assis Brasil",
@@ -401,6 +484,9 @@
             "FTTH Taquari": "Segundo Distrito",
             "FTTH Xavier Maia": "Parte Alta"
         };
+
+        let idPendente = null; // Para armazenar o ID que está sendo verificado
+        let dadosPendentes = null; // Para armazenar os dados do formulário
 
         function capitalize(str) {
             return str.charAt(0).toUpperCase() + str.slice(1);
@@ -435,6 +521,13 @@
             
             setAddressFieldsEditable(type, true);
             setCoordenadasEditable(type, true);
+            
+            // Resetar status do ID
+            if (type === 'ampliacao') {
+                const statusSpan = document.getElementById('statusId');
+                statusSpan.style.display = 'none';
+                statusSpan.className = 'status-indicator';
+            }
         }
 
         function atualizarOLT(formType) {
@@ -454,7 +547,6 @@
             }
         }
 
-        // FUNÇÃO: Captura a localização atual via GPS
         function buscarPorLocalizacaoAtual(tipo) {
             mostrarMensagem("Aguardando localização GPS...", 'sucesso');
             
@@ -465,10 +557,7 @@
                         const lon = position.coords.longitude;
                         const coordenadas = `${lat}, ${lon}`;
 
-                        // 1. Preenche o campo Coordenadas
                         document.getElementById(`coordenadas${capitalize(tipo)}`).value = coordenadas;
-                        
-                        // 2. Chama a função que já faz a busca reversa de endereço e preenche os demais campos
                         geocodificarCoordenadas(tipo);
                     },
                     (error) => {
@@ -488,7 +577,6 @@
                 mostrarMensagem("Geolocalização não suportada neste navegador/aparelho.", 'erro');
             }
         }
-
 
         function setAddressFieldsEditable(tipo, editable) {
             const endereco = document.getElementById(`endereco${capitalize(tipo)}`);
@@ -511,7 +599,6 @@
             preencherCamposEndereco(tipo, "", "Link não disponível.");
             setAddressFieldsEditable(tipo, true);
             setCoordenadasEditable(tipo, true);
-
 
             if (!coordenadasInput) {
                 mostrarMensagem("Insira as coordenadas antes de buscar.", 'erro');
@@ -540,7 +627,6 @@
 
                 if (response.ok && data.address) {
                     
-                    // 1. CONSTRUÇÃO DO ENDEREÇO
                     const addr = data.address;
                     const rua = addr.road || addr.footway || addr.pedestrian || addr.path || 'Rua/Via desconhecida';
                     const numero = addr.house_number || '';
@@ -563,8 +649,7 @@
                     
                     enderecoCompleto = enderecoCompleto.replace(/^,\s*/, '').trim();
 
-                    // 2. CONSTRUÇÃO DO LINK DE LOCALIZAÇÃO (Google Maps)
-                    const localizacaoLink = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`; // Link corrigido
+                    const localizacaoLink = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
 
                     preencherCamposCoordenada(tipo, `${lat}, ${lon}`); 
                     preencherCamposEndereco(tipo, enderecoCompleto, localizacaoLink);
@@ -603,11 +688,9 @@
                 return;
             }
 
-            // Limpeza da string para o Nominatim
             enderecoInput = enderecoInput.replace(/(,\s*|)\s*CEP\s*[:\s]*[\d\-]{6,9}/gi, ''); 
             enderecoInput = enderecoInput.replace(/(,\s*|)\s*(Brasil|Brazil)\s*$/gi, '').trim(); 
             enderecoInput = enderecoInput.replace(/\s+/g, ' ').replace(/,,\s*/g, ', ').trim();
-
 
             const query = encodeURIComponent(enderecoInput);
             const url = `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`;
@@ -626,7 +709,7 @@
                     const lon = resultado.lon;
                     const coordenadas = `${lat}, ${lon}`;
                     
-                    const localizacaoLink = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`; // Link corrigido
+                    const localizacaoLink = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
                     
                     preencherCamposCoordenada(tipo, coordenadas); 
                     preencherCamposEndereco(tipo, enderecoOriginal, localizacaoLink); 
@@ -646,7 +729,6 @@
             }
         }
 
-
         function preencherCamposEndereco(tipo, endereco, localizacao) {
             document.getElementById(`endereco${capitalize(tipo)}`).value = endereco;
             document.getElementById(`localizacao${capitalize(tipo)}`).value = localizacao;
@@ -656,43 +738,202 @@
             document.getElementById(`coordenadas${capitalize(tipo)}`).value = coordenadas;
         }
 
+        // NOVAS FUNÇÕES PARA INTEGRAÇÃO COM GOOGLE SHEETS
+        
+        async function verificarIdAmpliacao() {
+            const id = document.getElementById('idAmpliacao').value.trim();
+            const statusSpan = document.getElementById('statusId');
+            
+            if (!id) {
+                statusSpan.style.display = 'none';
+                return null;
+            }
+            
+            statusSpan.style.display = 'inline-block';
+            statusSpan.className = 'status-indicator status-verificando';
+            statusSpan.textContent = 'Verificando...';
+            
+            try {
+                const url = `${APPS_SCRIPT_URL}?action=verificar&id=${encodeURIComponent(id)}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (data.existe) {
+                        statusSpan.className = 'status-indicator status-invalido';
+                        statusSpan.textContent = '❌ ID já cadastrado';
+                        
+                        // Formatar data
+                        const dataObj = new Date(data.data);
+                        const dataFormatada = dataObj.toLocaleDateString('pt-BR');
+                        
+                        // Mostrar modal de confirmação
+                        const modalMessage = document.getElementById('modalMessage');
+                        modalMessage.innerHTML = `O ID <strong>${id}</strong> já foi cadastrado em <strong>${dataFormatada}</strong> por <strong>${data.responsavel}</strong> para o projeto <strong>${data.projeto}</strong>.<br><br>Deseja continuar mesmo assim?`;
+                        
+                        document.getElementById('confirmModal').style.display = 'flex';
+                        idPendente = id;
+                        
+                        return {
+                            existe: true,
+                            data: data
+                        };
+                    } else {
+                        statusSpan.className = 'status-indicator status-valido';
+                        statusSpan.textContent = '✅ ID disponível';
+                        return {
+                            existe: false
+                        };
+                    }
+                } else {
+                    statusSpan.style.display = 'none';
+                    mostrarMensagem('Erro ao verificar ID: ' + data.error, 'erro');
+                    return null;
+                }
+            } catch (error) {
+                console.error('Erro na verificação:', error);
+                statusSpan.style.display = 'none';
+                mostrarMensagem('Erro de conexão ao verificar ID', 'erro');
+                return null;
+            }
+        }
+        
+        function validarEConfirmarAmpliacao() {
+            const id = document.getElementById('idAmpliacao').value.trim();
+            
+            if (!id) {
+                mostrarMensagem('Por favor, digite um ID para validar', 'erro');
+                return;
+            }
+            
+            verificarIdAmpliacao();
+        }
+        
+        function confirmarContinuar(continuar) {
+            document.getElementById('confirmModal').style.display = 'none';
+            
+            if (continuar) {
+                // Usuário optou por continuar mesmo com ID duplicado
+                gerarTexto('ampliacao');
+            }
+            
+            idPendente = null;
+            dadosPendentes = null;
+        }
+        
+        async function salvarAmpliacaoNoSheet(dados) {
+            try {
+                const formData = new URLSearchParams();
+                formData.append('action', 'salvar');
+                formData.append('id', dados.id);
+                formData.append('endereco', dados.endereco);
+                formData.append('coordenadas', dados.coordenadas);
+                formData.append('localizacao', dados.localizacao);
+                formData.append('quantidade', dados.quantidade);
+                formData.append('projeto', dados.projeto);
+                formData.append('olt', dados.olt);
+                formData.append('responsavel', dados.responsavel);
+                formData.append('motivo', dados.motivo);
+                
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    mostrarMensagem('✅ Chamado salvo com sucesso!', 'sucesso');
+                    return true;
+                } else {
+                    mostrarMensagem('❌ Erro ao salvar: ' + data.error, 'erro');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Erro ao salvar:', error);
+                mostrarMensagem('❌ Erro de conexão ao salvar', 'erro');
+                return false;
+            }
+        }
 
-        function gerarTexto(tipo) {
-            let texto = "";
-
+        async function gerarTexto(tipo) {
             if (tipo === "implantacao") {
+                let texto = "";
                 texto += `Dados da Implantação\n\n`;
                 texto += `Endereço: ${document.getElementById("enderecoImplantacao").value}\n\n`;
                 texto += `Localização: ${document.getElementById("localizacaoImplantacao").value}\n\n`;
                 texto += `Coordenadas: ${document.getElementById("coordenadasImplantacao").value}\n\n`;
                 texto += `Responsável pelo pedido: ${document.getElementById("responsavelImplantacao").value}\n\n`;
                 texto += `Motivo da solicitação: ${document.getElementById("motivoImplantacao").value}\n\n`;
+
+                const coords = document.getElementById("coordenadasImplantacao").value;
+                const address = document.getElementById("enderecoImplantacao").value;
+                const link = document.getElementById("localizacaoImplantacao").value;
+                const responsavel = document.getElementById("responsavelImplantacao").value;
+
+                if (!coords || !address || !link || !responsavel) {
+                    mostrarMensagem("Preencha as Coordenadas, Endereço, Localização (Link) e Responsável antes de gerar.", 'erro');
+                    return;
+                }
+
+                navigator.clipboard.writeText(texto);
+                mostrarMensagem("As informações foram copiadas com sucesso!");
+                
             } else {
-                texto += `Dados da Ampliação\n\n`;
-                texto += `Endereço: ${document.getElementById("enderecoAmpliacao").value}\n\n`;
-                texto += `Localização: ${document.getElementById("localizacaoAmpliacao").value}\n\n`;
-                texto += `Coordenadas: ${document.getElementById("coordenadasAmpliacao").value}\n\n`;
-                texto += `Quantidade: ${document.getElementById("quantidadeAmpliacao").value}\n\n`;
-                texto += `Projeto: ${document.getElementById("projetoAmpliacao").value}\n\n`;
-                texto += `OLT: ${document.getElementById("oltAmpliacao").value}\n\n`;
-                texto += `ID: ${document.getElementById("idAmpliacao").value}\n\n`;
-                texto += `Responsável pelo pedido: ${document.getElementById("responsavelAmpliacao").value}\n\n`;
-                texto += `Motivo da solicitação: ${document.getElementById("motivoAmpliacao").value}\n\n`;
+                // Validação dos campos obrigatórios
+                const id = document.getElementById("idAmpliacao").value.trim();
+                const coords = document.getElementById("coordenadasAmpliacao").value;
+                const address = document.getElementById("enderecoAmpliacao").value;
+                const link = document.getElementById("localizacaoAmpliacao").value;
+                const quantidade = document.getElementById("quantidadeAmpliacao").value;
+                const projeto = document.getElementById("projetoAmpliacao").value;
+                const responsavel = document.getElementById("responsavelAmpliacao").value;
+                const motivo = document.getElementById("motivoAmpliacao").value;
+
+                if (!id || !coords || !address || !link || !quantidade || !projeto || !responsavel) {
+                    mostrarMensagem("Preencha todos os campos obrigatórios antes de gerar.", 'erro');
+                    return;
+                }
+
+                // Verificar ID primeiro
+                const resultado = await verificarIdAmpliacao();
+                
+                if (resultado && resultado.existe) {
+                    // O modal já será mostrado pela função verificarIdAmpliacao
+                    return;
+                }
+
+                // Se não existe ou é novo, prosseguir
+                const texto = `Dados da Ampliação\n\n` +
+                    `Endereço: ${address}\n\n` +
+                    `Localização: ${link}\n\n` +
+                    `Coordenadas: ${coords}\n\n` +
+                    `Quantidade: ${quantidade}\n\n` +
+                    `Projeto: ${projeto}\n\n` +
+                    `OLT: ${document.getElementById("oltAmpliacao").value}\n\n` +
+                    `ID: ${id}\n\n` +
+                    `Responsável pelo pedido: ${responsavel}\n\n` +
+                    `Motivo da solicitação: ${motivo}\n\n`;
+
+                // Copiar para área de transferência
+                navigator.clipboard.writeText(texto);
+                mostrarMensagem("As informações foram copiadas com sucesso!");
+                
+                // Salvar no Google Sheets
+                const dados = {
+                    id: id,
+                    endereco: address,
+                    coordenadas: coords,
+                    localizacao: link,
+                    quantidade: quantidade,
+                    projeto: projeto,
+                    olt: document.getElementById("oltAmpliacao").value,
+                    responsavel: responsavel,
+                    motivo: motivo
+                };
+                
+                await salvarAmpliacaoNoSheet(dados);
             }
-
-            // Validação de campos
-            const coords = document.getElementById(`coordenadas${capitalize(tipo)}`).value;
-            const address = document.getElementById(`endereco${capitalize(tipo)}`).value;
-            const link = document.getElementById(`localizacao${capitalize(tipo)}`).value;
-            const responsavel = document.getElementById(`responsavel${capitalize(tipo)}`).value;
-
-            if (!coords || !address || !link || !responsavel) {
-                mostrarMensagem("Preencha as Coordenadas, Endereço, Localização (Link) e Responsável antes de gerar.", 'erro');
-                return;
-            }
-
-            navigator.clipboard.writeText(texto);
-            mostrarMensagem("As informações foram copiadas com sucesso!");
         }
 
         function limparFormulario(tipo) {
@@ -702,6 +943,11 @@
             if (tipo === 'ampliacao') {
                 const oltField = document.getElementById(`olt${capitalize(tipo)}`);
                 oltField.value = "";
+                
+                // Resetar status do ID
+                const statusSpan = document.getElementById('statusId');
+                statusSpan.style.display = 'none';
+                statusSpan.className = 'status-indicator';
             }
 
             setAddressFieldsEditable(tipo, true); 
@@ -730,6 +976,16 @@
             }, 2500);
         }
 
+        // Fechar modal se clicar fora
+        window.onclick = function(event) {
+            const modal = document.getElementById('confirmModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+                idPendente = null;
+                dadosPendentes = null;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             showScreen('home'); 
             setAddressFieldsEditable('implantacao', true);
@@ -737,7 +993,6 @@
             setCoordenadasEditable('implantacao', true);
             setCoordenadasEditable('ampliacao', true);
             
-            // NOVO: REGISTRO DO SERVICE WORKER (Necessário para a funcionalidade de instalação)
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
                     navigator.serviceWorker.register('service-worker.js')
@@ -753,5 +1008,3 @@
     </script>
 </body>
 </html>
-
-
