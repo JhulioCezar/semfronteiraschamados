@@ -822,39 +822,37 @@
         }
         
         async function salvarAmpliacaoNoSheet(dados) {
-            try {
-                const formData = new URLSearchParams();
-                formData.append('action', 'salvar');
-                formData.append('id', dados.id);
-                formData.append('endereco', dados.endereco);
-                formData.append('coordenadas', dados.coordenadas);
-                formData.append('localizacao', dados.localizacao);
-                formData.append('quantidade', dados.quantidade);
-                formData.append('projeto', dados.projeto);
-                formData.append('olt', dados.olt);
-                formData.append('responsavel', dados.responsavel);
-                formData.append('motivo', dados.motivo);
-                
-                const response = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    mostrarMensagem('✅ Chamado salvo com sucesso!', 'sucesso');
-                    return true;
-                } else {
-                    mostrarMensagem('❌ Erro ao salvar: ' + data.error, 'erro');
-                    return false;
-                }
-            } catch (error) {
-                console.error('Erro ao salvar:', error);
-                mostrarMensagem('❌ Erro de conexão ao salvar', 'erro');
-                return false;
-            }
-        }
+    try {
+        // Criar FormData para enviar como POST
+        const formData = new FormData();
+        formData.append('action', 'salvar');
+        formData.append('id', dados.id);
+        formData.append('endereco', dados.endereco);
+        formData.append('coordenadas', dados.coordenadas);
+        formData.append('localizacao', dados.localizacao);
+        formData.append('quantidade', dados.quantidade);
+        formData.append('projeto', dados.projeto);
+        formData.append('olt', dados.olt);
+        formData.append('responsavel', dados.responsavel);
+        formData.append('motivo', dados.motivo);
+        
+        const response = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Importante para o Google Apps Script
+            body: formData
+        });
+        
+        // Como usamos 'no-cors', não podemos ler a resposta
+        // Mas o comando foi enviado
+        mostrarMensagem('✅ Chamado enviado para a planilha!', 'sucesso');
+        return true;
+        
+    } catch (error) {
+        console.error('Erro ao salvar:', error);
+        mostrarMensagem('❌ Erro ao salvar: ' + error.message, 'erro');
+        return false;
+    }
+}
 
         async function gerarTexto(tipo) {
             if (tipo === "implantacao") {
