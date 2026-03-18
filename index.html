@@ -741,62 +741,62 @@
         // NOVAS FUNÇÕES PARA INTEGRAÇÃO COM GOOGLE SHEETS
         
         async function verificarIdAmpliacao() {
-            const id = document.getElementById('idAmpliacao').value.trim();
-            const statusSpan = document.getElementById('statusId');
-            
-            if (!id) {
-                statusSpan.style.display = 'none';
-                return null;
-            }
-            
-            statusSpan.style.display = 'inline-block';
-            statusSpan.className = 'status-indicator status-verificando';
-            statusSpan.textContent = 'Verificando...';
-            
-            try {
-                const url = `${APPS_SCRIPT_URL}?action=verificar&id=${encodeURIComponent(id)}`;
-                const response = await fetch(url);
-                const data = await response.json();
+    const id = document.getElementById('idAmpliacao').value.trim();
+    const statusSpan = document.getElementById('statusId');
+    
+    if (!id) {
+        statusSpan.style.display = 'none';
+        return null;
+    }
+    
+    statusSpan.style.display = 'inline-block';
+    statusSpan.className = 'status-indicator status-verificando';
+    statusSpan.textContent = 'Verificando...';
+    
+    try {
+        const url = `${APPS_SCRIPT_URL}?action=verificar&id=${encodeURIComponent(id)}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.success) {
+            if (data.existe) {
+                statusSpan.className = 'status-indicator status-invalido';
+                statusSpan.textContent = '❌ ID já cadastrado';
                 
-                if (data.success) {
-                    if (data.existe) {
-                        statusSpan.className = 'status-indicator status-invalido';
-                        statusSpan.textContent = '❌ ID já cadastrado';
-                        
-                        // Formatar data
-                        const dataObj = new Date(data.data);
-                        const dataFormatada = dataObj.toLocaleDateString('pt-BR');
-                        
-                        // Mostrar modal de confirmação
-                        const modalMessage = document.getElementById('modalMessage');
-                        modalMessage.innerHTML = `O ID <strong>${id}</strong> já foi cadastrado em <strong>${dataFormatada}</strong> por <strong>${data.responsavel}</strong> para o projeto <strong>${data.projeto}</strong>.<br><br>Deseja continuar mesmo assim?`;
-                        
-                        document.getElementById('confirmModal').style.display = 'flex';
-                        idPendente = id;
-                        
-                        return {
-                            existe: true,
-                            data: data
-                        };
-                    } else {
-                        statusSpan.className = 'status-indicator status-valido';
-                        statusSpan.textContent = '✅ ID disponível';
-                        return {
-                            existe: false
-                        };
-                    }
-                } else {
-                    statusSpan.style.display = 'none';
-                    mostrarMensagem('Erro ao verificar ID: ' + data.error, 'erro');
-                    return null;
-                }
-            } catch (error) {
-                console.error('Erro na verificação:', error);
-                statusSpan.style.display = 'none';
-                mostrarMensagem('Erro de conexão ao verificar ID', 'erro');
-                return null;
+                // Mostrar modal de confirmação com a mensagem personalizada
+                const modalMessage = document.getElementById('modalMessage');
+                
+                // A data já vem formatada do Apps Script como DD/MM/AAAA
+                const dataFormatada = data.data || 'data não disponível';
+                
+                modalMessage.innerHTML = `O ID <strong>${id}</strong> já tem O.S cadastrada no dia <strong>${dataFormatada}</strong> por <strong>${data.responsavel || 'responsável não informado'}</strong> para o projeto <strong>${data.projeto || 'projeto não informado'}</strong>.<br><br>Deseja continuar mesmo assim?`;
+                
+                document.getElementById('confirmModal').style.display = 'flex';
+                idPendente = id;
+                
+                return {
+                    existe: true,
+                    data: data
+                };
+            } else {
+                statusSpan.className = 'status-indicator status-valido';
+                statusSpan.textContent = '✅ ID disponível';
+                return {
+                    existe: false
+                };
             }
+        } else {
+            statusSpan.style.display = 'none';
+            mostrarMensagem('Erro ao verificar ID: ' + (data.error || 'erro desconhecido'), 'erro');
+            return null;
         }
+    } catch (error) {
+        console.error('Erro na verificação:', error);
+        statusSpan.style.display = 'none';
+        mostrarMensagem('Erro de conexão ao verificar ID', 'erro');
+        return null;
+    }
+}
         
         function validarEConfirmarAmpliacao() {
             const id = document.getElementById('idAmpliacao').value.trim();
