@@ -129,6 +129,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            z-index: 100;
         }
         
         .usuario-logado button {
@@ -452,6 +453,12 @@
             margin-top: 15px;
         }
         
+        /* Estilo para campo de motivo com "Outro" */
+        .motivo-outro-textarea {
+            margin-top: 10px;
+            display: none;
+        }
+        
         /* --- MEDIA QUERY PARA CELULARES --- */
         @media (max-width: 500px) {
             .container {
@@ -588,6 +595,7 @@
                 <img src="https://i.imgur.com/dvzRyus.png" alt="Logomarca Sem Fronteiras" class="logo logo-header">
                 <h2 id="titulo"></h2> 
                 
+                <!-- Formulário de Implantação -->
                 <form id="implantacao" class="hidden">
                     <label>Coordenadas (Lat, Lon):</label>
                     <div class="input-group">
@@ -609,7 +617,18 @@
                     <input type="text" id="responsavelImplantacao" class="responsavel-padrao">
 
                     <label>Motivo da solicitação:</label>
-                    <textarea id="motivoImplantacao"></textarea>
+                    <div class="motivo-field">
+                        <select id="motivoSelectImplantacao" onchange="atualizarMotivoImplantacao()">
+                            <option value="">Selecione um motivo</option>
+                            <option>Caixa nova</option>
+                            <option>Atender novos clientes na localidade</option>
+                            <option>Atender mudança de endereço</option>
+                            <option>Caixa Lotada</option>
+                            <option>Outro</option>
+                        </select>
+                        <textarea id="motivoOutroImplantacao" class="motivo-outro-textarea" placeholder="Digite o motivo específico..."></textarea>
+                        <input type="text" id="motivoFinalImplantacao" style="display: none;">
+                    </div>
 
                     <div class="action-buttons">
                         <button type="button" onclick="gerarTexto('implantacao')">Gerar</button>
@@ -617,6 +636,7 @@
                     </div>
                 </form>
 
+                <!-- Formulário de Ampliação -->
                 <form id="ampliacao" class="hidden">
                     <label>Coordenadas (Lat, Lon):</label>
                     <div class="input-group">
@@ -676,7 +696,17 @@
                     <input type="text" id="responsavelAmpliacao" class="responsavel-padrao">
 
                     <label>Motivo da solicitação:</label>
-                    <textarea id="motivoAmpliacao"></textarea>
+                    <div class="motivo-field">
+                        <select id="motivoSelectAmpliacao" onchange="atualizarMotivoAmpliacao()">
+                            <option value="">Selecione um motivo</option>
+                            <option>Atender novos clientes na localidade</option>
+                            <option>Atender mudança de endereço</option>
+                            <option>Caixa Lotada</option>
+                            <option>Outro</option>
+                        </select>
+                        <textarea id="motivoOutroAmpliacao" class="motivo-outro-textarea" placeholder="Digite o motivo específico..."></textarea>
+                        <input type="text" id="motivoFinalAmpliacao" style="display: none;">
+                    </div>
 
                     <div class="action-buttons">
                         <button type="button" onclick="gerarTexto('ampliacao')" id="btnGerarAmpliacao">Gerar</button>
@@ -822,7 +852,6 @@
                     document.getElementById('sistema-screen').classList.remove('hidden');
                     document.getElementById('usuarioLogadoNome').textContent = usuarioAtual;
                     
-                    // Preencher campos de responsável com o usuário logado
                     preencherResponsavel('implantacao');
                     preencherResponsavel('ampliacao');
                     
@@ -993,19 +1022,16 @@
         function preencherResponsavel(tipo) {
             const campoResponsavel = document.getElementById(`responsavel${capitalize(tipo)}`);
             if (campoResponsavel && usuarioAtual) {
-                // Só preenche se estiver vazio
                 if (!campoResponsavel.value.trim()) {
                     campoResponsavel.value = usuarioAtual;
                     campoResponsavel.classList.add('responsavel-padrao');
                     campoResponsavel.classList.remove('responsavel-alterado', 'responsavel-vazio');
                 }
                 
-                // Remove evento anterior para não duplicar
                 campoResponsavel.removeEventListener('focus', handleResponsavelFocus);
                 campoResponsavel.removeEventListener('blur', handleResponsavelBlur);
                 campoResponsavel.removeEventListener('input', handleResponsavelInput);
                 
-                // Adiciona eventos
                 campoResponsavel.addEventListener('focus', handleResponsavelFocus);
                 campoResponsavel.addEventListener('blur', handleResponsavelBlur);
                 campoResponsavel.addEventListener('input', handleResponsavelInput);
@@ -1013,7 +1039,6 @@
         }
 
         function handleResponsavelFocus(event) {
-            // Quando foca, remove as classes temporariamente para edição normal
             event.target.classList.remove('responsavel-padrao', 'responsavel-alterado', 'responsavel-vazio');
         }
 
@@ -1034,8 +1059,73 @@
         }
 
         function handleResponsavelInput(event) {
-            // Enquanto digita, remove as classes para edição normal
             event.target.classList.remove('responsavel-padrao', 'responsavel-alterado', 'responsavel-vazio');
+        }
+
+        // FUNÇÕES PARA MOTIVO (Implantação)
+        function atualizarMotivoImplantacao() {
+            const select = document.getElementById('motivoSelectImplantacao');
+            const outroTextarea = document.getElementById('motivoOutroImplantacao');
+            const motivoFinal = document.getElementById('motivoFinalImplantacao');
+            
+            if (!select || !outroTextarea || !motivoFinal) return;
+            
+            select.classList.remove('invalido');
+            
+            if (select.value === 'Outro') {
+                outroTextarea.style.display = 'block';
+                motivoFinal.value = '';
+            } else {
+                outroTextarea.style.display = 'none';
+                motivoFinal.value = select.value;
+                outroTextarea.classList.remove('invalido');
+            }
+        }
+
+        function getMotivoFinalImplantacao() {
+            const select = document.getElementById('motivoSelectImplantacao');
+            const outroTextarea = document.getElementById('motivoOutroImplantacao');
+            
+            if (!select) return '';
+            
+            if (select.value === 'Outro') {
+                return outroTextarea ? outroTextarea.value.trim() || '' : '';
+            } else {
+                return select.value || '';
+            }
+        }
+
+        // FUNÇÕES PARA MOTIVO (Ampliação)
+        function atualizarMotivoAmpliacao() {
+            const select = document.getElementById('motivoSelectAmpliacao');
+            const outroTextarea = document.getElementById('motivoOutroAmpliacao');
+            const motivoFinal = document.getElementById('motivoFinalAmpliacao');
+            
+            if (!select || !outroTextarea || !motivoFinal) return;
+            
+            select.classList.remove('invalido');
+            
+            if (select.value === 'Outro') {
+                outroTextarea.style.display = 'block';
+                motivoFinal.value = '';
+            } else {
+                outroTextarea.style.display = 'none';
+                motivoFinal.value = select.value;
+                outroTextarea.classList.remove('invalido');
+            }
+        }
+
+        function getMotivoFinalAmpliacao() {
+            const select = document.getElementById('motivoSelectAmpliacao');
+            const outroTextarea = document.getElementById('motivoOutroAmpliacao');
+            
+            if (!select) return '';
+            
+            if (select.value === 'Outro') {
+                return outroTextarea ? outroTextarea.value.trim() || '' : '';
+            } else {
+                return select.value || '';
+            }
         }
 
         // FUNÇÕES DE NAVEGAÇÃO
@@ -1069,10 +1159,8 @@
             setAddressFieldsEditable(type, true);
             setCoordenadasEditable(type, true);
             
-            // Preencher responsável com o usuário logado
             preencherResponsavel(type);
             
-            // Resetar status do ID
             if (type === 'ampliacao') {
                 const statusSpan = document.getElementById('statusId');
                 statusSpan.style.display = 'none';
@@ -1442,7 +1530,7 @@
             const projeto = document.getElementById('projetoAmpliacao').value;
             const olt = document.getElementById('oltAmpliacao').value;
             const responsavel = document.getElementById('responsavelAmpliacao').value;
-            const motivo = document.getElementById('motivoAmpliacao').value;
+            const motivo = getMotivoFinalAmpliacao();
             
             const ids = processarMultiplosIds();
             
@@ -1633,6 +1721,11 @@
                             }
                         }
                     }
+                } else if (campo.id.includes('responsavel')) {
+                    if (!valor) {
+                        erros.push(`${campo.nome} não pode estar vazio`);
+                        elemento.classList.add('invalido');
+                    }
                 } else {
                     if (!valor) {
                         erros.push(`${campo.nome} não pode estar vazio`);
@@ -1641,22 +1734,22 @@
                 }
             });
             
-            const motivoSelect = document.getElementById(`motivoSelect${capitalize(tipo)}`);
-            if (motivoSelect) {
-                motivoSelect.classList.remove('invalido');
-                
-                if (!motivoSelect.value) {
-                    erros.push('Motivo deve ser selecionado');
-                    motivoSelect.classList.add('invalido');
+            // Validação do motivo conforme o tipo
+            if (tipo === 'implantacao') {
+                const motivo = getMotivoFinalImplantacao();
+                if (!motivo) {
+                    erros.push('Motivo deve ser selecionado ou especificado');
+                    document.getElementById('motivoSelectImplantacao').classList.add('invalido');
+                } else {
+                    document.getElementById('motivoSelectImplantacao').classList.remove('invalido');
                 }
             } else {
-                const motivoField = document.getElementById(`motivo${capitalize(tipo)}`);
-                if (motivoField) {
-                    motivoField.classList.remove('invalido');
-                    if (!motivoField.value.trim()) {
-                        erros.push('Motivo não pode estar vazio');
-                        motivoField.classList.add('invalido');
-                    }
+                const motivo = getMotivoFinalAmpliacao();
+                if (!motivo) {
+                    erros.push('Motivo deve ser selecionado ou especificado');
+                    document.getElementById('motivoSelectAmpliacao').classList.add('invalido');
+                } else {
+                    document.getElementById('motivoSelectAmpliacao').classList.remove('invalido');
                 }
             }
             
@@ -1693,7 +1786,7 @@
                 const localizacao = document.getElementById("localizacaoImplantacao").value;
                 const coordenadas = document.getElementById("coordenadasImplantacao").value;
                 const responsavel = document.getElementById("responsavelImplantacao").value;
-                const motivo = document.getElementById("motivoImplantacao").value;
+                const motivo = getMotivoFinalImplantacao();
 
                 let texto = "";
                 texto += `Dados da Implantação\n\n`;
@@ -1726,7 +1819,7 @@
                 const projeto = document.getElementById('projetoAmpliacao').value;
                 const olt = document.getElementById('oltAmpliacao').value;
                 const responsavel = document.getElementById('responsavelAmpliacao').value;
-                const motivo = document.getElementById('motivoAmpliacao').value;
+                const motivo = getMotivoFinalAmpliacao();
                 
                 let idsExistentes = [];
                 let idsDisponiveis = [];
@@ -1825,12 +1918,19 @@
                 statusSpan.className = 'status-indicator';
                 
                 document.getElementById('idInfo').style.display = 'none';
+                
+                // Resetar motivo
+                document.getElementById('motivoOutroAmpliacao').style.display = 'none';
+                document.getElementById('motivoOutroAmpliacao').value = '';
+            } else {
+                // Resetar motivo implantação
+                document.getElementById('motivoOutroImplantacao').style.display = 'none';
+                document.getElementById('motivoOutroImplantacao').value = '';
             }
 
             setAddressFieldsEditable(tipo, true); 
             setCoordenadasEditable(tipo, true);
             
-            // Restaurar responsável com usuário logado após limpar
             preencherResponsavel(tipo);
             
             mostrarMensagem("Formulário limpo com sucesso!");
