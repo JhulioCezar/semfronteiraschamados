@@ -1455,7 +1455,7 @@
     
     let idsExistentes = [];
     let idsDisponiveis = [];
-    let detalhesIds = []; // Para armazenar detalhes de cada ID existente
+    let detalhesIds = [];
     
     for (const id of ids) {
         try {
@@ -1485,25 +1485,42 @@
         
         let mensagem = '';
         
-        // Montar mensagem detalhada para cada ID existente
+        // Montar mensagem em formato de frase para cada ID existente
         if (detalhesIds.length > 0) {
-            mensagem += `<div style="text-align: left; max-height: 300px; overflow-y: auto;">`;
             for (const item of detalhesIds) {
-                mensagem += `<div style="border-bottom: 1px solid #eee; padding: 10px 0; margin-bottom: 5px;">`;
-                mensagem += `<strong style="color: #dc3545;">ID ${item.id}</strong><br>`;
-                mensagem += `📅 Data: ${item.data}<br>`;
-                mensagem += `👤 Responsável: ${item.responsavel}<br>`;
-                mensagem += `📋 Projeto: ${item.projeto}<br>`;
-                mensagem += `</div>`;
+                // Formatar a data corretamente
+                let dataFormatada = item.data;
+                try {
+                    // Se a data vier como string do tipo "Thu Mar 19 2026 15:18:32 GMT-0500"
+                    if (item.data && item.data.includes('GMT')) {
+                        const dataObj = new Date(item.data);
+                        if (!isNaN(dataObj.getTime())) {
+                            const dia = dataObj.getDate().toString().padStart(2, '0');
+                            const mes = (dataObj.getMonth() + 1).toString().padStart(2, '0');
+                            const ano = dataObj.getFullYear();
+                            dataFormatada = `${dia}/${mes}/${ano}`;
+                        }
+                    } 
+                    // Se já estiver no formato DD/MM/AAAA
+                    else if (item.data && item.data.includes('/')) {
+                        const partes = item.data.split('/');
+                        if (partes.length === 3 && partes[0].length === 2 && partes[1].length === 2 && partes[2].length === 4) {
+                            dataFormatada = item.data;
+                        }
+                    }
+                } catch (e) {
+                    dataFormatada = item.data;
+                }
+                
+                mensagem += `A CTO ID ${item.id} já tem O.S aberta/executada no dia ${dataFormatada} por ${item.responsavel} para o projeto ${item.projeto}.<br><br>`;
             }
-            mensagem += `</div><br>`;
         }
         
         if (idsDisponiveis.length > 0) {
-            mensagem += `<strong style="color: #28a745;">IDs disponíveis:</strong> ${idsDisponiveis.join(', ')}<br><br>`;
+            mensagem += `<strong>IDs disponíveis:</strong> ${idsDisponiveis.join(', ')}<br><br>`;
         }
         
-        mensagem += `<strong style="color: #ffc107;">O que deseja fazer?</strong>`;
+        mensagem += `<strong>O que deseja fazer?</strong>`;
         
         const modalMessage = document.getElementById('modalMessage');
         modalMessage.innerHTML = mensagem;
