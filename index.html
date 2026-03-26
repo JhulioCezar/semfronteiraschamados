@@ -1604,16 +1604,14 @@
             
             textoCompleto += `Dados da Ampliação - ID: ${id}\n\n` +
                 `ID: ${id}\n` +
-                `Endereço: ${dados.endereco}\n` +
-                `Localização: ${dados.localizacao}\n` +
-                `Coordenadas: ${dados.coordenadas}\n` +
-                `Quantidade: 1\n` +
-                `Projeto: ${dados.projeto}\n` +
-                `OLT: ${dados.olt}\n` +
-                `Responsável: ${dados.responsavel}\n` +
-                `Motivo: ${dados.motivo}\n\n` +
-                `🆕 NOVA OS\n` +
-                `----------------------------------------\n\n`;
+                `Endereço: ${dados.endereco}\n\n` +
+                `Localização: ${dados.localizacao}\n\n` +
+                `Coordenadas: ${dados.coordenadas}\n\n` +
+                `Quantidade: 1\n\n` +
+                `Projeto: ${dados.projeto}\n\n` +
+                `OLT: ${dados.olt}\n\n` +
+                `Responsável: ${dados.responsavel}\n\n` +
+                `Motivo: ${dados.motivo}\n\n';
             
             await salvarAmpliacaoNoSheet(dados);
             contador++;
@@ -1847,7 +1845,7 @@
                 texto += `Localização: ${localizacao}\n\n`;
                 texto += `Coordenadas: ${coordenadas}\n\n`;
                 texto += `Responsável pelo pedido: ${responsavel}\n\n`;
-                texto += `Motivo da solicitação: ${motivo}\n\n`;
+                texto += `Motivo da solicitação: ${motivo}\n`;
 
                 navigator.clipboard.writeText(texto);
                 mostrarMensagem("✅ Script de implantação gerado com sucesso!", 'sucesso');
@@ -1941,15 +1939,13 @@
                             `Projeto: ${dados.projeto}\n` +
                             `OLT: ${dados.olt}\n` +
                             `Responsável: ${dados.responsavel}\n` +
-                            `Motivo: ${dados.motivo}\n\n` +
-                            `🆕 NOVA OS\n` +
-                            `----------------------------------------\n\n`;
+                            `Motivo: ${dados.motivo}\n\n`;
                         
                         await salvarAmpliacaoNoSheet(dados);
                     }
                     
                     navigator.clipboard.writeText(textoCompleto);
-                    mostrarMensagem(`✅ ${ids.length} nova(s) OS gerada(s) e salva(s) na planilha!`, 'sucesso');
+                    mostrarMensagem("✅ Script de ampliação gerado com sucesso!", 'sucesso');
                     
                     setTimeout(() => {
                         statusSpan.style.display = 'none';
