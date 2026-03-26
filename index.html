@@ -2029,6 +2029,31 @@
                 errosModal.style.display = 'none';
             }
         }
+            // GARANTIR QUE AS FUNÇÕES ESTEJAM DISPONÍVEIS GLOBALMENTE
+        window.fazerLogin = fazerLogin;
+        window.criarPrimeiroAcesso = criarPrimeiroAcesso;
+        window.mostrarPrimeiroAcesso = mostrarPrimeiroAcesso;
+        window.mostrarRecuperarSenha = mostrarRecuperarSenha;
+        window.voltarParaLogin = voltarParaLogin;
+        window.solicitarCodigoRecuperacao = solicitarCodigoRecuperacao;
+        window.alterarSenhaRecuperacao = alterarSenhaRecuperacao;
+        window.fazerLogout = fazerLogout;
+        window.handleKeyPress = handleKeyPress;
+        window.showScreen = showScreen;
+        window.showForm = showForm;
+        window.geocodificarCoordenadas = geocodificarCoordenadas;
+        window.geocodificarEndereco = geocodificarEndereco;
+        window.buscarPorLocalizacaoAtual = buscarPorLocalizacaoAtual;
+        window.abrirLink = abrirLink;
+        window.atualizarOLT = atualizarOLT;
+        window.atualizarMotivoImplantacao = atualizarMotivoImplantacao;
+        window.atualizarMotivoAmpliacao = atualizarMotivoAmpliacao;
+        window.gerarTexto = gerarTexto;
+        window.limparFormulario = limparFormulario;
+        window.validarMultiplosIds = validarMultiplosIds;
+        window.confirmarAcao = confirmarAcao;
+        window.fecharErrosModal = fecharErrosModal;
+        window.validarQuantidadeComIds = validarQuantidadeComIds;
 
         document.addEventListener('DOMContentLoaded', () => {
             // A tela de login já está visível por padrão
