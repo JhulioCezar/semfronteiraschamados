@@ -1004,18 +1004,21 @@
             const msg = document.getElementById('login-mensagem');
             msg.textContent = texto;
             msg.className = `login-mensagem ${tipo}`;
+            msg.style.display = 'block';
         }
 
         function mostrarMensagemPrimeiroAcesso(texto, tipo) {
             const msg = document.getElementById('primeiro-acesso-mensagem');
             msg.textContent = texto;
             msg.className = `login-mensagem ${tipo}`;
+            msg.style.display = 'block';
         }
 
         function mostrarMensagemRecuperacao(texto, tipo) {
             const msg = document.getElementById('recuperar-senha-mensagem');
             msg.textContent = texto;
             msg.className = `login-mensagem ${tipo}`;
+            msg.style.display = 'block';
         }
 
         // FUNÇÃO PARA PREENCHER RESPONSÁVEL
@@ -1434,106 +1437,101 @@
         }
 
         async function verificarMultiplosIds() {
-    const ids = processarMultiplosIds();
-    const quantidade = parseInt(document.getElementById('quantidadeAmpliacao').value) || 1;
-    const statusSpan = document.getElementById('statusId');
-    
-    if (ids.length === 0) {
-        statusSpan.style.display = 'none';
-        return;
-    }
-    
-    if (ids.length !== quantidade) {
-        mostrarMensagem(`⚠️ A quantidade (${quantidade}) deve ser igual ao número de IDs informados (${ids.length})`, 'atencao');
-        statusSpan.style.display = 'none';
-        return;
-    }
-    
-    statusSpan.style.display = 'inline-block';
-    statusSpan.className = 'status-indicator status-verificando';
-    statusSpan.textContent = 'Verificando...';
-    
-    let idsExistentes = [];
-    let idsDisponiveis = [];
-    let detalhesIds = [];
-    
-    for (const id of ids) {
-        try {
-            const url = `${APPS_SCRIPT_URL}?action=verificar&id=${encodeURIComponent(id)}`;
-            const response = await fetch(url);
-            const data = await response.json();
+            const ids = processarMultiplosIds();
+            const quantidade = parseInt(document.getElementById('quantidadeAmpliacao').value) || 1;
+            const statusSpan = document.getElementById('statusId');
             
-            if (data.success && data.existe) {
-                idsExistentes.push(id);
-                detalhesIds.push({
-                    id: id,
-                    data: data.data || 'data não disponível',
-                    responsavel: data.responsavel || 'responsável não informado',
-                    projeto: data.projeto || 'projeto não informado'
-                });
-            } else {
-                idsDisponiveis.push(id);
+            if (ids.length === 0) {
+                statusSpan.style.display = 'none';
+                return;
             }
-        } catch (error) {
-            console.error('Erro na verificação do ID', id, error);
-        }
-    }
-    
-    if (idsExistentes.length > 0) {
-        statusSpan.className = 'status-indicator status-invalido';
-        statusSpan.textContent = idsExistentes.length === 1 ? '❌ ID já existe' : '❌ Alguns IDs já existem';
-        
-        let mensagem = '';
-        
-        // Montar mensagem em formato de frase para cada ID existente
-        if (detalhesIds.length > 0) {
-            for (const item of detalhesIds) {
-                // Formatar a data corretamente
-                let dataFormatada = item.data;
+            
+            if (ids.length !== quantidade) {
+                mostrarMensagem(`⚠️ A quantidade (${quantidade}) deve ser igual ao número de IDs informados (${ids.length})`, 'atencao');
+                statusSpan.style.display = 'none';
+                return;
+            }
+            
+            statusSpan.style.display = 'inline-block';
+            statusSpan.className = 'status-indicator status-verificando';
+            statusSpan.textContent = 'Verificando...';
+            
+            let idsExistentes = [];
+            let idsDisponiveis = [];
+            let detalhesIds = [];
+            
+            for (const id of ids) {
                 try {
-                    // Se a data vier como string do tipo "Thu Mar 19 2026 15:18:32 GMT-0500"
-                    if (item.data && item.data.includes('GMT')) {
-                        const dataObj = new Date(item.data);
-                        if (!isNaN(dataObj.getTime())) {
-                            const dia = dataObj.getDate().toString().padStart(2, '0');
-                            const mes = (dataObj.getMonth() + 1).toString().padStart(2, '0');
-                            const ano = dataObj.getFullYear();
-                            dataFormatada = `${dia}/${mes}/${ano}`;
-                        }
-                    } 
-                    // Se já estiver no formato DD/MM/AAAA
-                    else if (item.data && item.data.includes('/')) {
-                        const partes = item.data.split('/');
-                        if (partes.length === 3 && partes[0].length === 2 && partes[1].length === 2 && partes[2].length === 4) {
+                    const url = `${APPS_SCRIPT_URL}?action=verificar&id=${encodeURIComponent(id)}`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    
+                    if (data.success && data.existe) {
+                        idsExistentes.push(id);
+                        detalhesIds.push({
+                            id: id,
+                            data: data.data || 'data não disponível',
+                            responsavel: data.responsavel || 'responsável não informado',
+                            projeto: data.projeto || 'projeto não informado'
+                        });
+                    } else {
+                        idsDisponiveis.push(id);
+                    }
+                } catch (error) {
+                    console.error('Erro na verificação do ID', id, error);
+                }
+            }
+            
+            if (idsExistentes.length > 0) {
+                statusSpan.className = 'status-indicator status-invalido';
+                statusSpan.textContent = idsExistentes.length === 1 ? '❌ ID já existe' : '❌ Alguns IDs já existem';
+                
+                let mensagem = '';
+                
+                if (detalhesIds.length > 0) {
+                    for (const item of detalhesIds) {
+                        let dataFormatada = item.data;
+                        try {
+                            if (item.data && item.data.includes('GMT')) {
+                                const dataObj = new Date(item.data);
+                                if (!isNaN(dataObj.getTime())) {
+                                    const dia = dataObj.getDate().toString().padStart(2, '0');
+                                    const mes = (dataObj.getMonth() + 1).toString().padStart(2, '0');
+                                    const ano = dataObj.getFullYear();
+                                    dataFormatada = `${dia}/${mes}/${ano}`;
+                                }
+                            } else if (item.data && item.data.includes('/')) {
+                                const partes = item.data.split('/');
+                                if (partes.length === 3 && partes[0].length === 2 && partes[1].length === 2 && partes[2].length === 4) {
+                                    dataFormatada = item.data;
+                                }
+                            }
+                        } catch (e) {
                             dataFormatada = item.data;
                         }
+                        
+                        mensagem += `A CTO ID ${item.id} já tem O.S aberta/executada no dia ${dataFormatada} por ${item.responsavel} para o projeto ${item.projeto}.<br><br>`;
                     }
-                } catch (e) {
-                    dataFormatada = item.data;
                 }
                 
-                mensagem += `A CTO ID ${item.id} já tem O.S aberta/executada no dia ${dataFormatada} por ${item.responsavel} para o projeto ${item.projeto}.<br><br>`;
+                if (idsDisponiveis.length > 0) {
+                    mensagem += `<strong>IDs disponíveis:</strong> ${idsDisponiveis.join(', ')}<br><br>`;
+                }
+                
+                mensagem += `<strong>O que deseja fazer?</strong>`;
+                
+                const modalMessage = document.getElementById('modalMessage');
+                modalMessage.innerHTML = mensagem;
+                document.getElementById('confirmModal').style.display = 'flex';
+                
+                dadosBanco = { idsExistentes, idsDisponiveis, detalhesIds };
+                
+            } else {
+                statusSpan.className = 'status-indicator status-valido';
+                statusSpan.textContent = ids.length === 1 ? '✅ ID disponível' : '✅ Todos IDs disponíveis';
+                dadosBanco = null;
             }
         }
-        
-        if (idsDisponiveis.length > 0) {
-            mensagem += `<strong>IDs disponíveis:</strong> ${idsDisponiveis.join(', ')}<br><br>`;
-        }
-        
-        mensagem += `<strong>O que deseja fazer?</strong>`;
-        
-        const modalMessage = document.getElementById('modalMessage');
-        modalMessage.innerHTML = mensagem;
-        document.getElementById('confirmModal').style.display = 'flex';
-        
-        dadosBanco = { idsExistentes, idsDisponiveis, detalhesIds };
-        
-    } else {
-        statusSpan.className = 'status-indicator status-valido';
-        statusSpan.textContent = ids.length === 1 ? '✅ ID disponível' : '✅ Todos IDs disponíveis';
-        dadosBanco = null;
-    }
-}
 
         function validarMultiplosIds() {
             verificarMultiplosIds();
@@ -1551,135 +1549,133 @@
         }
 
         async function confirmarAcao(acao) {
-    document.getElementById('confirmModal').style.display = 'none';
-    
-    if (acao === 'cancelar') {
-        dadosBanco = null;
-        return;
-    }
-    
-    if (!dadosBanco) return;
-    
-    const endereco = document.getElementById('enderecoAmpliacao').value;
-    const localizacao = document.getElementById('localizacaoAmpliacao').value;
-    const coordenadas = document.getElementById('coordenadasAmpliacao').value;
-    const projeto = document.getElementById('projetoAmpliacao').value;
-    const olt = document.getElementById('oltAmpliacao').value;
-    const responsavel = document.getElementById('responsavelAmpliacao').value;
-    const motivo = getMotivoFinalAmpliacao();
-    
-    const ids = processarMultiplosIds();
-    
-    if (acao === 'manter') {
-        const { idsExistentes, idsDisponiveis, detalhesIds } = dadosBanco;
-        
-        let textoCompleto = '';
-        let contador = 0;
-        
-        // Primeiro, adicionar informações dos IDs existentes (ignorados)
-        if (idsExistentes.length > 0) {
-            textoCompleto += `⚠️ OS IGNORADAS (já existentes):\n\n`;
-            for (const item of detalhesIds) {
-                textoCompleto += `ID: ${item.id}\n`;
-                textoCompleto += `Data: ${item.data}\n`;
-                textoCompleto += `Responsável: ${item.responsavel}\n`;
-                textoCompleto += `Projeto: ${item.projeto}\n\n`;
+            document.getElementById('confirmModal').style.display = 'none';
+            
+            if (acao === 'cancelar') {
+                dadosBanco = null;
+                return;
             }
-            textoCompleto += `----------------------------------------\n\n`;
-        }
-        
-        // Processar IDs disponíveis (novos)
-        for (const id of idsDisponiveis) {
-            const dados = {
-                id: id,
-                endereco: endereco,
-                coordenadas: coordenadas,
-                localizacao: localizacao,
-                quantidade: 1,
-                projeto: projeto,
-                olt: olt,
-                responsavel: responsavel,
-                motivo: motivo
-            };
             
-            textoCompleto += `Dados da Ampliação - ID: ${id}\n\n` +
-                `ID: ${id}\n` +
-                `Endereço: ${dados.endereco}\n` +
-                `Localização: ${dados.localizacao}\n` +
-                `Coordenadas: ${dados.coordenadas}\n` +
-                `Quantidade: 1\n` +
-                `Projeto: ${dados.projeto}\n` +
-                `OLT: ${dados.olt}\n` +
-                `Responsável: ${dados.responsavel}\n` +
-                `Motivo: ${dados.motivo}\n\n` +
-                `🆕 NOVA OS\n` +
-                `----------------------------------------\n\n`;
+            if (!dadosBanco) return;
             
-            await salvarAmpliacaoNoSheet(dados);
-            contador++;
-        }
-        
-        navigator.clipboard.writeText(textoCompleto);
-        mostrarMensagem(`✅ ${contador} nova(s) OS gerada(s). ${idsExistentes.length} ignorada(s) por já existirem.`, 'sucesso');
-        
-        const statusSpan = document.getElementById('statusId');
-        statusSpan.style.display = 'none';
-    }
-    
-    if (acao === 'alterar') {
-        let textoCompleto = '';
-        let contador = 0;
-        
-        // Adicionar cabeçalho se houver IDs existentes sendo sobrescritos
-        if (dadosBanco.idsExistentes.length > 0) {
-            textoCompleto += `✏️ IDs SOBRESCRITOS:\n\n`;
-            for (const item of dadosBanco.detalhesIds) {
-                textoCompleto += `ID: ${item.id} (anterior: ${item.data} - ${item.responsavel})\n`;
+            const endereco = document.getElementById('enderecoAmpliacao').value;
+            const localizacao = document.getElementById('localizacaoAmpliacao').value;
+            const coordenadas = document.getElementById('coordenadasAmpliacao').value;
+            const projeto = document.getElementById('projetoAmpliacao').value;
+            const olt = document.getElementById('oltAmpliacao').value;
+            const responsavel = document.getElementById('responsavelAmpliacao').value;
+            const motivo = getMotivoFinalAmpliacao();
+            
+            const ids = processarMultiplosIds();
+            
+            if (acao === 'manter') {
+                const { idsExistentes, idsDisponiveis, detalhesIds } = dadosBanco;
+                
+                let textoCompleto = '';
+                let contador = 0;
+                
+                if (idsExistentes.length > 0) {
+                    textoCompleto += `⚠️ OS IGNORADAS (já existentes):\n\n`;
+                    for (const item of detalhesIds) {
+                        textoCompleto += `ID: ${item.id}\n`;
+                        textoCompleto += `Data: ${item.data}\n`;
+                        textoCompleto += `Responsável: ${item.responsavel}\n`;
+                        textoCompleto += `Projeto: ${item.projeto}\n\n`;
+                    }
+                    textoCompleto += `----------------------------------------\n\n`;
+                }
+                
+                for (const id of idsDisponiveis) {
+                    const dados = {
+                        id: id,
+                        endereco: endereco,
+                        coordenadas: coordenadas,
+                        localizacao: localizacao,
+                        quantidade: 1,
+                        projeto: projeto,
+                        olt: olt,
+                        responsavel: responsavel,
+                        motivo: motivo
+                    };
+                    
+                    textoCompleto += `Dados da Ampliação - ID: ${id}\n\n` +
+                        `ID: ${id}\n` +
+                        `Endereço: ${dados.endereco}\n` +
+                        `Localização: ${dados.localizacao}\n` +
+                        `Coordenadas: ${dados.coordenadas}\n` +
+                        `Quantidade: 1\n` +
+                        `Projeto: ${dados.projeto}\n` +
+                        `OLT: ${dados.olt}\n` +
+                        `Responsável: ${dados.responsavel}\n` +
+                        `Motivo: ${dados.motivo}\n\n` +
+                        `🆕 NOVA OS\n` +
+                        `----------------------------------------\n\n`;
+                    
+                    await salvarAmpliacaoNoSheet(dados);
+                    contador++;
+                }
+                
+                navigator.clipboard.writeText(textoCompleto);
+                mostrarMensagem(`✅ ${contador} nova(s) OS gerada(s). ${idsExistentes.length} ignorada(s) por já existirem.`, 'sucesso');
+                
+                const statusSpan = document.getElementById('statusId');
+                statusSpan.style.display = 'none';
             }
-            textoCompleto += `\n----------------------------------------\n\n`;
+            
+            if (acao === 'alterar') {
+                let textoCompleto = '';
+                let contador = 0;
+                
+                if (dadosBanco.idsExistentes.length > 0) {
+                    textoCompleto += `✏️ IDs SOBRESCRITOS:\n\n`;
+                    for (const item of dadosBanco.detalhesIds) {
+                        textoCompleto += `ID: ${item.id} (anterior: ${item.data} - ${item.responsavel})\n`;
+                    }
+                    textoCompleto += `\n----------------------------------------\n\n`;
+                }
+                
+                for (const id of ids) {
+                    const dados = {
+                        id: id,
+                        endereco: endereco,
+                        coordenadas: coordenadas,
+                        localizacao: localizacao,
+                        quantidade: 1,
+                        projeto: projeto,
+                        olt: olt,
+                        responsavel: responsavel,
+                        motivo: motivo
+                    };
+                    
+                    const status = dadosBanco.idsExistentes.includes(id) ? '✏️ SOBRESCRITA' : '🆕 NOVA';
+                    
+                    textoCompleto += `Dados da Ampliação - ID: ${id}\n\n` +
+                        `ID: ${id}\n` +
+                        `Endereço: ${endereco}\n` +
+                        `Localização: ${localizacao}\n` +
+                        `Coordenadas: ${coordenadas}\n` +
+                        `Quantidade: 1\n` +
+                        `Projeto: ${projeto}\n` +
+                        `OLT: ${olt}\n` +
+                        `Responsável: ${responsavel}\n` +
+                        `Motivo: ${motivo}\n\n` +
+                        `${status}\n` +
+                        `----------------------------------------\n\n`;
+                    
+                    await salvarAmpliacaoNoSheet(dados);
+                    contador++;
+                }
+                
+                navigator.clipboard.writeText(textoCompleto);
+                mostrarMensagem(`✅ ${contador} OS processadas (incluindo sobrescritas) e salvas na planilha!`, 'sucesso');
+                
+                const statusSpan = document.getElementById('statusId');
+                statusSpan.style.display = 'none';
+            }
+            
+            dadosBanco = null;
         }
         
-        for (const id of ids) {
-            const dados = {
-                id: id,
-                endereco: endereco,
-                coordenadas: coordenadas,
-                localizacao: localizacao,
-                quantidade: 1,
-                projeto: projeto,
-                olt: olt,
-                responsavel: responsavel,
-                motivo: motivo
-            };
-            
-            const status = dadosBanco.idsExistentes.includes(id) ? '✏️ SOBRESCRITA' : '🆕 NOVA';
-            
-            textoCompleto += `Dados da Ampliação - ID: ${id}\n\n` +
-                `ID: ${id}\n` +
-                `Endereço: ${endereco}\n` +
-                `Localização: ${localizacao}\n` +
-                `Coordenadas: ${coordenadas}\n` +
-                `Quantidade: 1\n` +
-                `Projeto: ${projeto}\n` +
-                `OLT: ${olt}\n` +
-                `Responsável: ${responsavel}\n` +
-                `Motivo: ${motivo}\n\n` +
-                `${status}\n` +
-                `----------------------------------------\n\n`;
-            
-            await salvarAmpliacaoNoSheet(dados);
-            contador++;
-        }
-        
-        navigator.clipboard.writeText(textoCompleto);
-        mostrarMensagem(`✅ ${contador} OS processadas (incluindo sobrescritas) e salvas na planilha!`, 'sucesso');
-        
-        const statusSpan = document.getElementById('statusId');
-        statusSpan.style.display = 'none';
-    }
-    
-    dadosBanco = null;
-}
         async function salvarAmpliacaoNoSheet(dados) {
             try {
                 const formData = new URLSearchParams();
@@ -1787,7 +1783,6 @@
                 }
             });
             
-            // Validação do motivo conforme o tipo
             if (tipo === 'implantacao') {
                 const motivo = getMotivoFinalImplantacao();
                 if (!motivo) {
@@ -1852,109 +1847,109 @@
                 navigator.clipboard.writeText(texto);
                 mostrarMensagem("✅ Script de implantação gerado com sucesso!", 'sucesso');
                 
-           } else {
-    const ids = processarMultiplosIds();
-    const quantidade = parseInt(document.getElementById('quantidadeAmpliacao').value) || 1;
-    
-    if (ids.length !== quantidade) {
-        mostrarMensagem(`⚠️ A quantidade (${quantidade}) deve ser igual ao número de IDs informados (${ids.length})`, 'atencao');
-        return;
-    }
-
-    const statusSpan = document.getElementById('statusId');
-    statusSpan.style.display = 'inline-block';
-    statusSpan.className = 'status-indicator status-verificando';
-    statusSpan.textContent = 'Verificando...';
-    
-    const endereco = document.getElementById('enderecoAmpliacao').value;
-    const localizacao = document.getElementById('localizacaoAmpliacao').value;
-    const coordenadas = document.getElementById('coordenadasAmpliacao').value;
-    const projeto = document.getElementById('projetoAmpliacao').value;
-    const olt = document.getElementById('oltAmpliacao').value;
-    const responsavel = document.getElementById('responsavelAmpliacao').value;
-    const motivo = getMotivoFinalAmpliacao();
-    
-    let idsExistentes = [];
-    let idsDisponiveis = [];
-    
-    for (const id of ids) {
-        try {
-            const url = `${APPS_SCRIPT_URL}?action=verificar&id=${encodeURIComponent(id)}`;
-            const response = await fetch(url);
-            const data = await response.json();
-            
-            if (data.success && data.existe) {
-                idsExistentes.push(id);
             } else {
-                idsDisponiveis.push(id);
+                const ids = processarMultiplosIds();
+                const quantidade = parseInt(document.getElementById('quantidadeAmpliacao').value) || 1;
+                
+                if (ids.length !== quantidade) {
+                    mostrarMensagem(`⚠️ A quantidade (${quantidade}) deve ser igual ao número de IDs informados (${ids.length})`, 'atencao');
+                    return;
+                }
+
+                const statusSpan = document.getElementById('statusId');
+                statusSpan.style.display = 'inline-block';
+                statusSpan.className = 'status-indicator status-verificando';
+                statusSpan.textContent = 'Verificando...';
+                
+                const endereco = document.getElementById('enderecoAmpliacao').value;
+                const localizacao = document.getElementById('localizacaoAmpliacao').value;
+                const coordenadas = document.getElementById('coordenadasAmpliacao').value;
+                const projeto = document.getElementById('projetoAmpliacao').value;
+                const olt = document.getElementById('oltAmpliacao').value;
+                const responsavel = document.getElementById('responsavelAmpliacao').value;
+                const motivo = getMotivoFinalAmpliacao();
+                
+                let idsExistentes = [];
+                let idsDisponiveis = [];
+                
+                for (const id of ids) {
+                    try {
+                        const url = `${APPS_SCRIPT_URL}?action=verificar&id=${encodeURIComponent(id)}`;
+                        const response = await fetch(url);
+                        const data = await response.json();
+                        
+                        if (data.success && data.existe) {
+                            idsExistentes.push(id);
+                        } else {
+                            idsDisponiveis.push(id);
+                        }
+                    } catch (error) {
+                        console.error('Erro na verificação do ID', id, error);
+                    }
+                }
+                
+                if (idsExistentes.length > 0) {
+                    statusSpan.className = 'status-indicator status-invalido';
+                    statusSpan.textContent = idsExistentes.length === 1 ? '❌ ID já existe' : '❌ Alguns IDs já existem';
+                    
+                    let mensagem = '';
+                    if (idsExistentes.length > 0) {
+                        mensagem += `<strong style="color: #dc3545;">IDs já cadastrados:</strong> ${idsExistentes.join(', ')}<br>`;
+                    }
+                    if (idsDisponiveis.length > 0) {
+                        mensagem += `<strong style="color: #28a745;">IDs disponíveis:</strong> ${idsDisponiveis.join(', ')}<br>`;
+                    }
+                    
+                    mensagem += `<br><strong style="color: #ffc107;">O que deseja fazer?</strong>`;
+                    
+                    const modalMessage = document.getElementById('modalMessage');
+                    modalMessage.innerHTML = mensagem;
+                    document.getElementById('confirmModal').style.display = 'flex';
+                    
+                    dadosBanco = { idsExistentes, idsDisponiveis, endereco, localizacao, coordenadas, projeto, olt, responsavel, motivo };
+                    
+                } else {
+                    statusSpan.className = 'status-indicator status-valido';
+                    statusSpan.textContent = ids.length === 1 ? '✅ ID disponível' : '✅ Todos IDs disponíveis';
+                    
+                    let textoCompleto = '';
+                    
+                    for (const id of ids) {
+                        const dados = {
+                            id: id,
+                            endereco: endereco,
+                            coordenadas: coordenadas,
+                            localizacao: localizacao,
+                            quantidade: 1,
+                            projeto: projeto,
+                            olt: olt,
+                            responsavel: responsavel,
+                            motivo: motivo
+                        };
+                        
+                        textoCompleto += `Dados da Ampliação - ID: ${id}\n\n` +
+                            `ID: ${id}\n` +
+                            `Endereço: ${dados.endereco}\n` +
+                            `Localização: ${dados.localizacao}\n` +
+                            `Coordenadas: ${dados.coordenadas}\n` +
+                            `Quantidade: 1\n` +
+                            `Projeto: ${dados.projeto}\n` +
+                            `OLT: ${dados.olt}\n` +
+                            `Responsável: ${dados.responsavel}\n` +
+                            `Motivo: ${dados.motivo}\n\n`;
+                        
+                        await salvarAmpliacaoNoSheet(dados);
+                    }
+                    
+                    navigator.clipboard.writeText(textoCompleto);
+                    mostrarMensagem("✅ Script de ampliação gerado com sucesso!", 'sucesso');
+                    
+                    setTimeout(() => {
+                        statusSpan.style.display = 'none';
+                    }, 3000);
+                }
             }
-        } catch (error) {
-            console.error('Erro na verificação do ID', id, error);
         }
-    }
-    
-    if (idsExistentes.length > 0) {
-        statusSpan.className = 'status-indicator status-invalido';
-        statusSpan.textContent = idsExistentes.length === 1 ? '❌ ID já existe' : '❌ Alguns IDs já existem';
-        
-        let mensagem = '';
-        if (idsExistentes.length > 0) {
-            mensagem += `<strong style="color: #dc3545;">IDs já cadastrados:</strong> ${idsExistentes.join(', ')}<br>`;
-        }
-        if (idsDisponiveis.length > 0) {
-            mensagem += `<strong style="color: #28a745;">IDs disponíveis:</strong> ${idsDisponiveis.join(', ')}<br>`;
-        }
-        
-        mensagem += `<br><strong style="color: #ffc107;">O que deseja fazer?</strong>`;
-        
-        const modalMessage = document.getElementById('modalMessage');
-        modalMessage.innerHTML = mensagem;
-        document.getElementById('confirmModal').style.display = 'flex';
-        
-        dadosBanco = { idsExistentes, idsDisponiveis, endereco, localizacao, coordenadas, projeto, olt, responsavel, motivo };
-        
-    } else {
-        statusSpan.className = 'status-indicator status-valido';
-        statusSpan.textContent = ids.length === 1 ? '✅ ID disponível' : '✅ Todos IDs disponíveis';
-        
-        let textoCompleto = '';
-        
-        for (const id of ids) {
-            const dados = {
-                id: id,
-                endereco: endereco,
-                coordenadas: coordenadas,
-                localizacao: localizacao,
-                quantidade: 1,
-                projeto: projeto,
-                olt: olt,
-                responsavel: responsavel,
-                motivo: motivo
-            };
-            
-            textoCompleto += `Dados da Ampliação - ID: ${id}\n\n` +
-                `ID: ${id}\n` +
-                `Endereço: ${dados.endereco}\n` +
-                `Localização: ${dados.localizacao}\n` +
-                `Coordenadas: ${dados.coordenadas}\n` +
-                `Quantidade: 1\n` +
-                `Projeto: ${dados.projeto}\n` +
-                `OLT: ${dados.olt}\n` +
-                `Responsável: ${dados.responsavel}\n` +
-                `Motivo: ${dados.motivo}\n\n`;
-            
-            await salvarAmpliacaoNoSheet(dados);
-        }
-        
-        navigator.clipboard.writeText(textoCompleto);
-        // ALTERAÇÃO AQUI: mensagem simplificada igual à implantação
-        mostrarMensagem("✅ Script de ampliação gerado com sucesso!", 'sucesso');
-        
-        setTimeout(() => {
-            statusSpan.style.display = 'none';
-        }, 3000);
-    }
-}
 
         function limparFormulario(tipo) {
             const form = document.getElementById(tipo);
@@ -1970,11 +1965,9 @@
                 
                 document.getElementById('idInfo').style.display = 'none';
                 
-                // Resetar motivo
                 document.getElementById('motivoOutroAmpliacao').style.display = 'none';
                 document.getElementById('motivoOutroAmpliacao').value = '';
             } else {
-                // Resetar motivo implantação
                 document.getElementById('motivoOutroImplantacao').style.display = 'none';
                 document.getElementById('motivoOutroImplantacao').value = '';
             }
@@ -2029,34 +2022,9 @@
                 errosModal.style.display = 'none';
             }
         }
-            // GARANTIR QUE AS FUNÇÕES ESTEJAM DISPONÍVEIS GLOBALMENTE
-        window.fazerLogin = fazerLogin;
-        window.criarPrimeiroAcesso = criarPrimeiroAcesso;
-        window.mostrarPrimeiroAcesso = mostrarPrimeiroAcesso;
-        window.mostrarRecuperarSenha = mostrarRecuperarSenha;
-        window.voltarParaLogin = voltarParaLogin;
-        window.solicitarCodigoRecuperacao = solicitarCodigoRecuperacao;
-        window.alterarSenhaRecuperacao = alterarSenhaRecuperacao;
-        window.fazerLogout = fazerLogout;
-        window.handleKeyPress = handleKeyPress;
-        window.showScreen = showScreen;
-        window.showForm = showForm;
-        window.geocodificarCoordenadas = geocodificarCoordenadas;
-        window.geocodificarEndereco = geocodificarEndereco;
-        window.buscarPorLocalizacaoAtual = buscarPorLocalizacaoAtual;
-        window.abrirLink = abrirLink;
-        window.atualizarOLT = atualizarOLT;
-        window.atualizarMotivoImplantacao = atualizarMotivoImplantacao;
-        window.atualizarMotivoAmpliacao = atualizarMotivoAmpliacao;
-        window.gerarTexto = gerarTexto;
-        window.limparFormulario = limparFormulario;
-        window.validarMultiplosIds = validarMultiplosIds;
-        window.confirmarAcao = confirmarAcao;
-        window.fecharErrosModal = fecharErrosModal;
-        window.validarQuantidadeComIds = validarQuantidadeComIds;
 
         document.addEventListener('DOMContentLoaded', () => {
-            // A tela de login já está visível por padrão
+            console.log('Sistema carregado com sucesso!');
         });
     </script>
 </body>
