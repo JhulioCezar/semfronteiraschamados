@@ -114,6 +114,41 @@
             border: 1px solid #ffc107;
             display: block;
         }
+
+        /* Container para campo de senha com botão */
+        .password-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        
+        .password-container input {
+            width: 100%;
+            padding: 12px;
+            padding-right: 45px;
+            margin-bottom: 0;
+            box-sizing: border-box;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 0;
+            margin: 0;
+            width: auto;
+            color: #6c757d;
+            transition: color 0.2s;
+        }
+        
+        .toggle-password:hover {
+            background: none;
+            color: #007bff;
+        }
         
         /* Usuário logado */
         .usuario-logado {
@@ -501,6 +536,10 @@
                 flex-direction: column;
                 align-items: center;
             }
+            
+            .password-container input {
+                padding-right: 45px;
+            }
         }
     </style>
 </head>
@@ -516,7 +555,10 @@
             <div class="login-form">
                 <h3>Login</h3>
                 <input type="text" id="login-nome" placeholder="Digite seu nome" onkeypress="handleKeyPress(event, 'login')">
-                <input type="password" id="login-senha" placeholder="Digite sua senha" onkeypress="handleKeyPress(event, 'login')">
+                <div class="password-container">
+                    <input type="password" id="login-senha" placeholder="Digite sua senha" onkeypress="handleKeyPress(event, 'login')">
+                    <button type="button" class="toggle-password" onclick="togglePassword('login-senha', this)">👁️</button>
+                </div>
                 <button onclick="fazerLogin()">Entrar</button>
                 
                 <div class="login-footer">
@@ -538,8 +580,14 @@
             <div class="login-form">
                 <h3>Crie sua conta</h3>
                 <input type="text" id="novo-usuario-nome" placeholder="Digite seu nome completo" onkeypress="handleKeyPress(event, 'primeiroAcesso')">
-                <input type="password" id="novo-usuario-senha" placeholder="Digite sua senha (mínimo 4 caracteres)" onkeypress="handleKeyPress(event, 'primeiroAcesso')">
-                <input type="password" id="novo-usuario-confirma-senha" placeholder="Confirme sua senha" onkeypress="handleKeyPress(event, 'primeiroAcesso')">
+                <div class="password-container">
+                    <input type="password" id="novo-usuario-senha" placeholder="Digite sua senha (mínimo 4 caracteres)" onkeypress="handleKeyPress(event, 'primeiroAcesso')">
+                    <button type="button" class="toggle-password" onclick="togglePassword('novo-usuario-senha', this)">👁️</button>
+                </div>
+                <div class="password-container">
+                    <input type="password" id="novo-usuario-confirma-senha" placeholder="Confirme sua senha" onkeypress="handleKeyPress(event, 'primeiroAcesso')">
+                    <button type="button" class="toggle-password" onclick="togglePassword('novo-usuario-confirma-senha', this)">👁️</button>
+                </div>
                 <button onclick="criarPrimeiroAcesso()">Criar conta</button>
                 
                 <div id="primeiro-acesso-mensagem" class="login-mensagem"></div>
@@ -562,8 +610,14 @@
             <div id="etapa2-recuperar" class="login-form hidden">
                 <h3>Etapa 2: Alterar senha</h3>
                 <input type="text" id="recuperar-codigo" placeholder="Digite o código recebido" onkeypress="handleKeyPress(event, 'recuperarEtapa2')">
-                <input type="password" id="recuperar-nova-senha" placeholder="Nova senha (mínimo 4 caracteres)" onkeypress="handleKeyPress(event, 'recuperarEtapa2')">
-                <input type="password" id="recuperar-confirma-senha" placeholder="Confirme a nova senha" onkeypress="handleKeyPress(event, 'recuperarEtapa2')">
+                <div class="password-container">
+                    <input type="password" id="recuperar-nova-senha" placeholder="Nova senha (mínimo 4 caracteres)" onkeypress="handleKeyPress(event, 'recuperarEtapa2')">
+                    <button type="button" class="toggle-password" onclick="togglePassword('recuperar-nova-senha', this)">👁️</button>
+                </div>
+                <div class="password-container">
+                    <input type="password" id="recuperar-confirma-senha" placeholder="Confirme a nova senha" onkeypress="handleKeyPress(event, 'recuperarEtapa2')">
+                    <button type="button" class="toggle-password" onclick="togglePassword('recuperar-confirma-senha', this)">👁️</button>
+                </div>
                 <button onclick="alterarSenhaRecuperacao()">Alterar senha</button>
             </div>
             
@@ -778,6 +832,18 @@
         let dadosPendentes = null;
         let dadosBanco = null;
         let nomeRecuperacao = '';
+
+        // FUNÇÃO PARA EXIBIR/OCULTAR SENHA
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                button.textContent = '👁️';
+            }
+        }
 
         function capitalize(str) {
             return str.charAt(0).toUpperCase() + str.slice(1);
