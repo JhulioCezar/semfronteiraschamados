@@ -27,6 +27,21 @@
         .password-container{position:relative;margin-bottom:15px}
         .password-container input{width:100%;padding:12px;padding-right:45px}
         .toggle-password{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1.2em;color:#6c757d}
+        input:focus, select:focus, textarea:focus {
+            outline: none !important;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25) !important;
+            border-color: #007bff !important;
+        }
+        .password-container input:focus {
+            outline: none !important;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25) !important;
+            border-color: #007bff !important;
+        }
+        .toggle-password:focus, .toggle-password:active {
+            outline: none !important;
+            box-shadow: none !important;
+            background: none !important;
+        }
         .usuario-logado{position:absolute;top:25px;right:25px;background:#e9ecef;padding:8px 15px;border-radius:20px;font-size:0.9em;font-weight:bold;color:#007bff;display:flex;align-items:center;gap:10px;z-index:100}
         .usuario-logado button{margin:0;padding:4px 10px;font-size:0.8em;background-color:#6c757d}
         .logo{display:block;width:80%;max-width:350px;margin:0 auto 10px}
@@ -150,7 +165,7 @@
             <img src="https://i.imgur.com/dvzRyus.png" alt="Logomarca" class="logo">
             <h2 id="titulo"></h2>
             <form id="implantacao" class="hidden">
-                <label>Coordenadas:</label>
+                <label>Coordenadas (Lat, Lon):</label>
                 <div class="input-group">
                     <input type="text" id="coordenadasImplantacao">
                     <button type="button" onclick="geocodificarCoordenadas('implantacao')">Buscar</button>
@@ -161,21 +176,21 @@
                     <button type="button" onclick="geocodificarEndereco('implantacao')">Buscar</button>
                     <button type="button" onclick="buscarPorLocalizacaoAtual('implantacao')" class="gps-button">GPS</button>
                 </div>
-                <label>Localização (Link):</label>
-                <input type="text" id="localizacaoImplantacao" onclick="abrirLink('implantacao')" readonly placeholder="Link aparecerá aqui">
-                <label>Responsável:</label>
+                <label>Localização (Link do Mapa):</label>
+                <input type="text" id="localizacaoImplantacao" onclick="abrirLink('implantacao')" readonly placeholder="Link aparecerá aqui após a busca">
+                <label>Responsável pelo pedido:</label>
                 <input type="text" id="responsavelImplantacao">
-                <label>Motivo:</label>
+                <label>Motivo da solicitação:</label>
                 <div class="motivo-field">
                     <select id="motivoSelectImplantacao" onchange="atualizarMotivoImplantacao()">
-                        <option value="">Selecione</option>
+                        <option value="">Selecione um motivo</option>
                         <option>Caixa nova</option>
-                        <option>Atender novos clientes</option>
+                        <option>Atender novos clientes na localidade</option>
                         <option>Atender mudança de endereço</option>
                         <option>Caixa Lotada</option>
                         <option>Outro</option>
                     </select>
-                    <textarea id="motivoOutroImplantacao" class="motivo-outro-textarea" placeholder="Digite o motivo..."></textarea>
+                    <textarea id="motivoOutroImplantacao" class="motivo-outro-textarea" placeholder="Digite o motivo específico..."></textarea>
                 </div>
                 <div class="action-buttons">
                     <button type="button" onclick="gerarTexto('implantacao')">Gerar</button>
@@ -183,7 +198,7 @@
                 </div>
             </form>
             <form id="ampliacao" class="hidden">
-                <label>Coordenadas:</label>
+                <label>Coordenadas (Lat, Lon):</label>
                 <div class="input-group">
                     <input type="text" id="coordenadasAmpliacao">
                     <button type="button" onclick="geocodificarCoordenadas('ampliacao')">Buscar</button>
@@ -194,13 +209,13 @@
                     <button type="button" onclick="geocodificarEndereco('ampliacao')">Buscar</button>
                     <button type="button" onclick="buscarPorLocalizacaoAtual('ampliacao')" class="gps-button">GPS</button>
                 </div>
-                <label>Localização (Link):</label>
-                <input type="text" id="localizacaoAmpliacao" onclick="abrirLink('ampliacao')" readonly placeholder="Link aparecerá aqui">
+                <label>Localização (Link do Mapa):</label>
+                <input type="text" id="localizacaoAmpliacao" onclick="abrirLink('ampliacao')" readonly placeholder="Link aparecerá aqui após a busca">
                 <label>Quantidade:</label>
                 <input type="number" id="quantidadeAmpliacao" min="1" value="1" onchange="validarQuantidadeComIds()">
                 <label>Projeto:</label>
                 <select id="projetoAmpliacao" onchange="atualizarOLT('ampliacao')">
-                    <option value="">Selecione</option>
+                    <option value="">Selecione um projeto</option>
                     <option>FTTH Albert Sampaio</option><option>FTTH Assis Brasil</option><option>FTTH Benfica</option>
                     <option>FTTH Bujari</option><option>FTTH Canaã</option><option>FTTH Cidade do Povo</option>
                     <option>FTTH Maison Borges</option><option>FTTH Município do Quinari</option><option>FTTH Ouricuri</option>
@@ -214,20 +229,22 @@
                 <input type="text" id="oltAmpliacao" readonly>
                 <label>ID(s):</label>
                 <div style="display:flex; gap:10px; align-items:center">
-                    <input type="text" id="idAmpliacao" placeholder="Ex: ID1, ID2" style="flex:1" onblur="validarQuantidadeComIds()">
+                    <input type="text" id="idAmpliacao" placeholder="Ex: ID1, ID2, ID3" style="flex:1" onblur="validarQuantidadeComIds()">
                     <span id="statusId" class="status-indicator status-verificando" style="display:none">Verificando...</span>
                 </div>
                 <div class="id-info" id="idInfo"></div>
-                <label>Responsável:</label>
+                <label>Responsável pelo pedido:</label>
                 <input type="text" id="responsavelAmpliacao">
-                <label>Motivo:</label>
+                <label>Motivo da solicitação:</label>
                 <div class="motivo-field">
                     <select id="motivoSelectAmpliacao" onchange="atualizarMotivoAmpliacao()">
-                        <option value="">Selecione</option>
-                        <option>Atender novos clientes</option><option>Atender mudança de endereço</option>
-                        <option>Caixa Lotada</option><option>Outro</option>
+                        <option value="">Selecione um motivo</option>
+                        <option>Atender novos clientes na localidade</option>
+                        <option>Atender mudança de endereço</option>
+                        <option>Caixa Lotada</option>
+                        <option>Outro</option>
                     </select>
-                    <textarea id="motivoOutroAmpliacao" class="motivo-outro-textarea" placeholder="Digite o motivo..."></textarea>
+                    <textarea id="motivoOutroAmpliacao" class="motivo-outro-textarea" placeholder="Digite o motivo específico..."></textarea>
                 </div>
                 <div class="action-buttons">
                     <button type="button" onclick="gerarTexto('ampliacao')">Gerar</button>
@@ -359,8 +376,6 @@ function abrirLink(tipo) {
     if (link && link.startsWith('http')) window.open(link, '_blank');
     else mostrarMensagem('Link inválido', 'erro');
 }
-
-// ========== FUNÇÕES COM HASH ==========
 
 async function fazerLogin() {
     if (!supabaseClient) { mostrarMensagem('Aguardando conexão...', 'erro'); return; }
@@ -610,7 +625,7 @@ function processarMultiplosIds() {
     if (!texto) return [];
     const ids = texto.split(',').map(i => i.trim()).filter(i => i);
     const valido = ids.every(id => /^[A-Za-z0-9]+$/.test(id));
-    if (!valido) { mostrarMensagem('Formato inválido. Use: ID1, ID2', 'erro'); return []; }
+    if (!valido) { mostrarMensagem('Formato inválido. Use: ID1, ID2, ID3', 'erro'); return []; }
     return ids;
 }
 
@@ -618,9 +633,9 @@ function validarQuantidadeComIds() {
     const qtd = parseInt(document.getElementById('quantidadeAmpliacao').value) || 1;
     const ids = processarMultiplosIds();
     const info = document.getElementById('idInfo');
-    if (qtd > 1) { info.textContent = 'Separe por vírgula: ID1, ID2, ID3'; info.style.display = 'block'; }
+    if (qtd > 1) { info.textContent = 'Para múltiplos IDs, separe por vírgula: ID1, ID2, ID3'; info.style.display = 'block'; }
     else info.style.display = 'none';
-    if (ids.length && ids.length !== qtd) mostrarMensagem(`Quantidade ${qtd} não bate com IDs (${ids.length})`, 'atencao');
+    if (ids.length && ids.length !== qtd) mostrarMensagem(`⚠️ A quantidade (${qtd}) não corresponde ao número de IDs informados (${ids.length})`, 'atencao');
     if (ids.length && ids.length === qtd) verificarMultiplosIds();
 }
 
@@ -641,16 +656,16 @@ async function verificarMultiplosIds() {
     }
     if (existentes.length > 0) {
         statusSpan.className = 'status-indicator status-invalido';
-        statusSpan.textContent = existentes.length === 1 ? '❌ ID existe' : '❌ IDs existem';
+        statusSpan.textContent = existentes.length === 1 ? '❌ ID já existe' : '❌ Alguns IDs já existem';
         let msg = `<strong>IDs já cadastrados:</strong> ${existentes.join(', ')}<br><br>`;
-        detalhes.forEach(d => msg += `ID ${d.id_cto}: ${d.data} - ${d.responsavel}<br>`);
+        detalhes.forEach(d => msg += `ID ${d.id_cto}: ${d.data} - ${d.responsavel} (${d.projeto})<br>`);
         msg += `<br><strong>O que deseja fazer?</strong>`;
         document.getElementById('modalMessage').innerHTML = msg;
         document.getElementById('confirmModal').style.display = 'flex';
         dadosBanco = { existentes, disponiveis, detalhes };
     } else {
         statusSpan.className = 'status-indicator status-valido';
-        statusSpan.textContent = ids.length === 1 ? '✅ Disponível' : '✅ Todos disponíveis';
+        statusSpan.textContent = ids.length === 1 ? '✅ ID disponível' : '✅ Todos IDs disponíveis';
         dadosBanco = null;
     }
 }
@@ -660,6 +675,7 @@ function validarMultiplosIds() { verificarMultiplosIds(); }
 async function confirmarAcao(acao) {
     document.getElementById('confirmModal').style.display = 'none';
     if (acao === 'cancelar' || !dadosBanco) { dadosBanco = null; return; }
+    
     const end = document.getElementById('enderecoAmpliacao').value;
     const loc = document.getElementById('localizacaoAmpliacao').value;
     const coord = document.getElementById('coordenadasAmpliacao').value;
@@ -669,15 +685,62 @@ async function confirmarAcao(acao) {
     const mot = getMotivoFinalAmpliacao();
     const hoje = new Date().toLocaleDateString('pt-BR');
     const ids = processarMultiplosIds();
-    let texto = '', salvos = 0;
+    
+    let texto = '';
+    let salvos = 0;
     const idsParaSalvar = acao === 'manter' ? dadosBanco.disponiveis : ids;
+    
+    if (acao === 'manter' && dadosBanco.existentes.length > 0) {
+        texto += `⚠️ OS IGNORADAS (já existentes):\n\n`;
+        for (const item of dadosBanco.detalhes) {
+            texto += `ID: ${item.id_cto}\n`;
+            texto += `Data: ${item.data}\n`;
+            texto += `Responsável: ${item.responsavel}\n`;
+            texto += `Projeto: ${item.projeto}\n\n`;
+        }
+        texto += `----------------------------------------\n\n`;
+    }
+    
+    if (acao === 'alterar' && dadosBanco.existentes.length > 0) {
+        texto += `✏️ IDs SOBRESCRITOS:\n\n`;
+        for (const item of dadosBanco.detalhes) {
+            texto += `ID: ${item.id_cto} (anterior: ${item.data} - ${item.responsavel})\n`;
+        }
+        texto += `\n----------------------------------------\n\n`;
+    }
+    
+    texto += `Dados da Ampliação\n\n`;
+    
     for (const id of idsParaSalvar) {
-        texto += `ID: ${id}\nEndereço: ${end}\nLocalização: ${loc}\nCoordenadas: ${coord}\nProjeto: ${proj}\nOLT: ${olt}\nResponsável: ${resp}\nMotivo: ${mot}\n\n`;
-        await supabaseClient.from('chamados').upsert({ id_cto: id, data: hoje, endereco: end, coordenadas: coord, localizacao: loc, quantidade: 1, projeto: proj, olt: olt, responsavel: resp, motivo: mot, status: 'ativo' }, { onConflict: 'id_cto' });
+        texto += `Endereço: ${end}\n\n`;
+        texto += `Localização: ${loc}\n\n`;
+        texto += `Coordenadas: ${coord}\n\n`;
+        texto += `Quantidade: 1\n\n`;
+        texto += `ID(s): ${id}\n\n`;
+        texto += `Projeto: ${proj}\n\n`;
+        texto += `OLT: ${olt}\n\n`;
+        texto += `Responsável: ${resp}\n\n`;
+        texto += `Motivo: ${mot}\n\n`;
+        texto += `----------------------------------------\n\n`;
+        
+        await supabaseClient.from('chamados').upsert({ 
+            id_cto: id, 
+            data: hoje, 
+            endereco: end, 
+            coordenadas: coord, 
+            localizacao: loc, 
+            quantidade: 1, 
+            projeto: proj, 
+            olt: olt, 
+            responsavel: resp, 
+            motivo: mot, 
+            status: 'ativo' 
+        }, { onConflict: 'id_cto' });
         salvos++;
     }
+    
     navigator.clipboard.writeText(texto);
-    mostrarMensagem(`✅ ${salvos} OS geradas!`, 'sucesso');
+    mostrarMensagem(`✅ ${salvos} OS processadas com sucesso!`, 'sucesso');
     document.getElementById('statusId').style.display = 'none';
     dadosBanco = null;
 }
@@ -692,19 +755,19 @@ function validarCampos(tipo) {
         if (!el) continue;
         const val = el.value.trim();
         if (!val) { erros.push(`${c.nome} não pode estar vazio`); el.classList.add('invalido'); }
-        else if (c.id === 'quantidadeAmpliacao' && (parseInt(val) < 1)) { erros.push('Quantidade deve ser >=1'); el.classList.add('invalido'); }
-        else if (c.id === 'projetoAmpliacao' && !val) { erros.push('Selecione um projeto'); el.classList.add('invalido'); }
+        else if (c.id === 'quantidadeAmpliacao' && (parseInt(val) < 1)) { erros.push('Quantidade deve ser pelo menos 1'); el.classList.add('invalido'); }
+        else if (c.id === 'projetoAmpliacao' && !val) { erros.push('Projeto deve ser selecionado'); el.classList.add('invalido'); }
         else if (c.id === 'idAmpliacao') {
             const ids = val.split(',').map(i=>i.trim()).filter(i=>i);
             if (ids.length === 0) { erros.push('Informe pelo menos um ID'); el.classList.add('invalido'); }
             else {
                 const qtd = parseInt(document.getElementById('quantidadeAmpliacao').value) || 1;
-                if (ids.length !== qtd) { erros.push(`Número de IDs (${ids.length}) ≠ quantidade (${qtd})`); el.classList.add('invalido'); }
+                if (ids.length !== qtd) { erros.push(`Número de IDs (${ids.length}) não corresponde à quantidade (${qtd})`); el.classList.add('invalido'); }
             }
         }
     }
     const motivo = tipo === 'implantacao' ? getMotivoFinalImplantacao() : getMotivoFinalAmpliacao();
-    if (!motivo) erros.push('Selecione ou especifique o motivo');
+    if (!motivo) erros.push('Motivo deve ser selecionado ou especificado');
     return erros;
 }
 
@@ -719,18 +782,38 @@ function fecharErrosModal() { document.getElementById('errosModal').style.displa
 async function gerarTexto(tipo) {
     const erros = validarCampos(tipo);
     if (erros.length > 0) { mostrarErros(erros); return; }
+    
     if (tipo === 'implantacao') {
-        const texto = `Dados da Implantação\n\nEndereço: ${document.getElementById('enderecoImplantacao').value}\nLocalização: ${document.getElementById('localizacaoImplantacao').value}\nCoordenadas: ${document.getElementById('coordenadasImplantacao').value}\nResponsável: ${document.getElementById('responsavelImplantacao').value}\nMotivo: ${getMotivoFinalImplantacao()}`;
+        const endereco = document.getElementById('enderecoImplantacao').value;
+        const localizacao = document.getElementById('localizacaoImplantacao').value;
+        const coordenadas = document.getElementById('coordenadasImplantacao').value;
+        const responsavel = document.getElementById('responsavelImplantacao').value;
+        const motivo = getMotivoFinalImplantacao();
+
+        let texto = "Dados da Implantação\n\n";
+        texto += `Endereço: ${endereco}\n\n`;
+        texto += `Localização: ${localizacao}\n\n`;
+        texto += `Coordenadas: ${coordenadas}\n\n`;
+        texto += `Responsável: ${responsavel}\n\n`;
+        texto += `Motivo: ${motivo}\n\n`;
+
         navigator.clipboard.writeText(texto);
-        mostrarMensagem('✅ Script gerado!', 'sucesso');
+        mostrarMensagem('✅ Script de implantação gerado com sucesso!', 'sucesso');
+        
     } else {
         const ids = processarMultiplosIds();
         const qtd = parseInt(document.getElementById('quantidadeAmpliacao').value) || 1;
-        if (ids.length !== qtd) { mostrarMensagem(`Quantidade (${qtd}) ≠ IDs (${ids.length})`, 'erro'); return; }
+        
+        if (ids.length !== qtd) { 
+            mostrarMensagem(`⚠️ A quantidade (${qtd}) deve ser igual ao número de IDs informados (${ids.length})`, 'atencao'); 
+            return; 
+        }
+        
         const statusSpan = document.getElementById('statusId');
         statusSpan.style.display = 'inline-block';
         statusSpan.className = 'status-indicator status-verificando';
         statusSpan.textContent = 'Verificando...';
+        
         const end = document.getElementById('enderecoAmpliacao').value;
         const loc = document.getElementById('localizacaoAmpliacao').value;
         const coord = document.getElementById('coordenadasAmpliacao').value;
@@ -739,27 +822,75 @@ async function gerarTexto(tipo) {
         const resp = document.getElementById('responsavelAmpliacao').value;
         const mot = getMotivoFinalAmpliacao();
         const hoje = new Date().toLocaleDateString('pt-BR');
+        
         let existentes = [];
+        let detalhesIds = [];
+        
         for (const id of ids) {
-            const { data } = await supabaseClient.from('chamados').select('id_cto').eq('id_cto', id).maybeSingle();
-            if (data) existentes.push(id);
+            const { data } = await supabaseClient
+                .from('chamados')
+                .select('id_cto, data, responsavel, projeto')
+                .eq('id_cto', id)
+                .maybeSingle();
+            if (data) { 
+                existentes.push(id);
+                detalhesIds.push(data);
+            }
         }
+        
         if (existentes.length > 0) {
             statusSpan.className = 'status-indicator status-invalido';
-            statusSpan.textContent = existentes.length === 1 ? '❌ ID existe' : '❌ IDs existem';
-            let msg = `<strong>IDs já cadastrados:</strong> ${existentes.join(', ')}<br><br><strong>O que deseja fazer?</strong>`;
+            statusSpan.textContent = existentes.length === 1 ? '❌ ID já existe' : '❌ Alguns IDs já existem';
+            
+            let msg = `<strong>IDs já cadastrados:</strong> ${existentes.join(', ')}<br><br>`;
+            for (const item of detalhesIds) {
+                msg += `ID ${item.id_cto}: ${item.data} - ${item.responsavel} (${item.projeto})<br>`;
+            }
+            msg += `<br><strong>IDs disponíveis:</strong> ${ids.filter(i => !existentes.includes(i)).join(', ')}<br><br>`;
+            msg += `<strong>O que deseja fazer?</strong>`;
+            
             document.getElementById('modalMessage').innerHTML = msg;
             document.getElementById('confirmModal').style.display = 'flex';
-            dadosBanco = { existentes, disponiveis: ids.filter(i=>!existentes.includes(i)), detalhes: [] };
+            
+            dadosBanco = { 
+                existentes: existentes, 
+                disponiveis: ids.filter(i => !existentes.includes(i)),
+                detalhes: detalhesIds
+            };
             return;
         }
-        let texto = '';
+        
+        let texto = "Dados da Ampliação\n\n";
+        
         for (const id of ids) {
-            texto += `ID: ${id}\nEndereço: ${end}\nLocalização: ${loc}\nCoordenadas: ${coord}\nProjeto: ${proj}\nOLT: ${olt}\nResponsável: ${resp}\nMotivo: ${mot}\n\n`;
-            await supabaseClient.from('chamados').insert({ id_cto: id, data: hoje, endereco: end, coordenadas: coord, localizacao: loc, quantidade: 1, projeto: proj, olt: olt, responsavel: resp, motivo: mot, status: 'ativo' });
+            texto += `Endereço: ${end}\n\n`;
+            texto += `Localização: ${loc}\n\n`;
+            texto += `Coordenadas: ${coord}\n\n`;
+            texto += `Quantidade: 1\n\n`;
+            texto += `ID(s): ${id}\n\n`;
+            texto += `Projeto: ${proj}\n\n`;
+            texto += `OLT: ${olt}\n\n`;
+            texto += `Responsável: ${resp}\n\n`;
+            texto += `Motivo: ${mot}\n\n`;
+            texto += `----------------------------------------\n\n`;
+            
+            await supabaseClient.from('chamados').insert({ 
+                id_cto: id, 
+                data: hoje, 
+                endereco: end, 
+                coordenadas: coord, 
+                localizacao: loc, 
+                quantidade: 1, 
+                projeto: proj, 
+                olt: olt, 
+                responsavel: resp, 
+                motivo: mot, 
+                status: 'ativo' 
+            });
         }
+        
         navigator.clipboard.writeText(texto);
-        mostrarMensagem(`✅ ${ids.length} OS gerada(s)!`, 'sucesso');
+        mostrarMensagem(`✅ ${ids.length} OS de ampliação gerada(s) com sucesso!`, 'sucesso');
         statusSpan.style.display = 'none';
     }
 }
@@ -774,8 +905,10 @@ function limparFormulario(tipo) {
     } else {
         document.getElementById('motivoOutroImplantacao').style.display = 'none';
     }
+    setAddressFieldsEditable(tipo, true);
+    setCoordenadasEditable(tipo, true);
     preencherResponsavel(tipo);
-    mostrarMensagem('Formulário limpo!', 'sucesso');
+    mostrarMensagem('Formulário limpo com sucesso!', 'sucesso');
 }
 
 window.onclick = function(e) {
