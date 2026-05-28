@@ -169,8 +169,11 @@
                 <div class="motivo-field">
                     <select id="motivoSelectImplantacao" onchange="atualizarMotivoImplantacao()">
                         <option value="">Selecione</option>
-                        <option>Caixa nova</option><option>Atender novos clientes</option>
-                        <option>Atender mudança de endereço</option><option>Caixa Lotada</option><option>Outro</option>
+                        <option>Caixa nova</option>
+                        <option>Atender novos clientes</option>
+                        <option>Atender mudança de endereço</option>
+                        <option>Caixa Lotada</option>
+                        <option>Outro</option>
                     </select>
                     <textarea id="motivoOutroImplantacao" class="motivo-outro-textarea" placeholder="Digite o motivo..."></textarea>
                 </div>
@@ -357,7 +360,8 @@ function abrirLink(tipo) {
     else mostrarMensagem('Link inválido', 'erro');
 }
 
-// ========== FUNÇÃO DE LOGIN CORRIGIDA ==========
+// ========== FUNÇÕES COM HASH ==========
+
 async function fazerLogin() {
     if (!supabaseClient) { mostrarMensagem('Aguardando conexão...', 'erro'); return; }
     
@@ -370,10 +374,9 @@ async function fazerLogin() {
     }
     
     try {
-        // Usando ilike para ignorar maiúsculas/minúsculas
         const { data, error } = await supabaseClient
             .from('usuarios')
-            .select('*')
+            .select('nome, senha')
             .ilike('nome', nome)
             .maybeSingle();
         
@@ -382,7 +385,13 @@ async function fazerLogin() {
             return;
         }
         
-        if (data.senha !== senha) {
+        const { data: senhaValida, error: senhaError } = await supabaseClient
+            .rpc('check_password', { 
+                user_nome: nome, 
+                user_senha: senha 
+            });
+        
+        if (senhaError || !senhaValida) {
             mostrarMensagem('Senha incorreta!', 'erro');
             return;
         }
@@ -400,22 +409,53 @@ async function fazerLogin() {
         mostrarMensagem('Erro de conexão', 'erro');
     }
 }
-// ==============================================
 
 async function criarPrimeiroAcesso() {
     if (!supabaseClient) { mostrarMensagem('Aguardando conexão...', 'erro'); return; }
+    
     const nome = document.getElementById('novo-usuario-nome').value.trim();
     const senha = document.getElementById('novo-usuario-senha').value.trim();
     const confirma = document.getElementById('novo-usuario-confirma-senha').value.trim();
-    if (!nome || !senha || !confirma) { mostrarMensagem('Preencha todos os campos', 'erro'); return; }
-    if (senha.length < 4) { mostrarMensagem('Senha deve ter 4+ caracteres', 'erro'); return; }
-    if (senha !== confirma) { mostrarMensagem('Senhas não conferem', 'erro'); return; }
+    
+    if (!nome || !senha || !confirma) {
+        mostrarMensagem('Preencha todos os campos!', 'erro');
+        return;
+    }
+    if (senha.length < 4) {
+        mostrarMensagem('Senha deve ter pelo menos 4 caracteres', 'erro');
+        return;
+    }
+    if (senha !== confirma) {
+        mostrarMensagem('Senhas não conferem', 'erro');
+        return;
+    }
+    
     try {
-        const { error } = await supabaseClient.from('usuarios').insert([{ nome, senha, primeiro_acesso: true, data_criacao: new Date().toISOString() }]);
-        if (error) { mostrarMensagem(error.code === '23505' ? 'Usuário já existe!' : 'Erro ao criar conta', 'erro'); return; }
-        mostrarMensagem('Conta criada! Faça login.', 'sucesso');
-        setTimeout(() => { voltarParaLogin(); document.getElementById('login-nome').value = nome; }, 2000);
-    } catch(e) { mostrarMensagem('Erro de conexão', 'erro'); }
+        const { error } = await supabaseClient
+            .rpc('create_user', { 
+                user_nome: nome, 
+                user_senha: senha 
+            });
+        
+        if (error) {
+            if (error.message.includes('duplicate')) {
+                mostrarMensagem('Usuário já existe!', 'erro');
+            } else {
+                mostrarMensagem('Erro ao criar conta: ' + error.message, 'erro');
+            }
+            return;
+        }
+        
+        mostrarMensagem('Conta criada com sucesso! Faça login.', 'sucesso');
+        setTimeout(() => { 
+            voltarParaLogin(); 
+            document.getElementById('login-nome').value = nome; 
+        }, 2000);
+        
+    } catch(e) {
+        console.error(e);
+        mostrarMensagem('Erro de conexão', 'erro');
+    }
 }
 
 async function solicitarCodigoRecuperacao() {
@@ -425,7 +465,11 @@ async function solicitarCodigoRecuperacao() {
     nomeRecuperacao = nome;
     const codigo = Math.floor(100000 + Math.random() * 900000).toString();
     try {
-        const { error } = await supabaseClient.from('usuarios').update({ codigo_recuperacao: codigo }).ilike('nome', nome);
+        const { error } = await supabaseClient
+            .from('usuarios')
+            .update({ codigo_recuperacao: codigo })
+            .ilike('nome', nome);
+        
         if (error) { mostrarMensagem('Usuário não encontrado', 'erro'); return; }
         mostrarMensagem(`Código: ${codigo} (simulado)`, 'sucesso');
         document.getElementById('etapa1-recuperar').classList.add('hidden');
@@ -438,13 +482,34 @@ async function alterarSenhaRecuperacao() {
     const codigo = document.getElementById('recuperar-codigo').value.trim();
     const novaSenha = document.getElementById('recuperar-nova-senha').value.trim();
     const confirma = document.getElementById('recuperar-confirma-senha').value.trim();
-    if (!codigo || !novaSenha || !confirma) { mostrarMensagem('Preencha todos os campos', 'erro'); return; }
-    if (novaSenha.length < 4) { mostrarMensagem('Senha deve ter 4+ caracteres', 'erro'); return; }
-    if (novaSenha !== confirma) { mostrarMensagem('Senhas não conferem', 'erro'); return; }
+    
+    if (!codigo || !novaSenha || !confirma) { 
+        mostrarMensagem('Preencha todos os campos', 'erro'); 
+        return; 
+    }
+    if (novaSenha.length < 4) { 
+        mostrarMensagem('Senha deve ter 4+ caracteres', 'erro'); 
+        return; 
+    }
+    if (novaSenha !== confirma) { 
+        mostrarMensagem('Senhas não conferem', 'erro'); 
+        return; 
+    }
+    
     try {
-        const { error } = await supabaseClient.from('usuarios').update({ senha: novaSenha, codigo_recuperacao: null }).eq('codigo_recuperacao', codigo).ilike('nome', nomeRecuperacao);
-        if (error) { mostrarMensagem('Código inválido', 'erro'); return; }
-        mostrarMensagem('Senha alterada! Faça login.', 'sucesso');
+        const { data: success, error } = await supabaseClient
+            .rpc('update_password', {
+                user_nome: nomeRecuperacao,
+                user_codigo: codigo,
+                new_password: novaSenha
+            });
+        
+        if (error || !success) {
+            mostrarMensagem('Código inválido ou usuário não encontrado', 'erro');
+            return;
+        }
+        
+        mostrarMensagem('Senha alterada com sucesso! Faça login.', 'sucesso');
         setTimeout(() => voltarParaLogin(), 2000);
     } catch(e) { mostrarMensagem('Erro de conexão', 'erro'); }
 }
