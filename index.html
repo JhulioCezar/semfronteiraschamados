@@ -4,1115 +4,719 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sem Fronteiras - Sistema</title>
-
-    <link rel="icon" type="image/png" href="android-icon-192x192.png"> 
-    
+    <link rel="icon" type="image/png" href="android-icon-192x192.png">
     <meta name="theme-color" content="#007bff">
     <link rel="apple-touch-icon" href="android-icon-192x192.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="android-icon-192x192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="android-icon-512x512.png">
-    
     <link rel="manifest" href="manifest.json">
-
-    <!-- Supabase Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background: linear-gradient(135deg, #007bff 0%, #00c6ff 100%);
-            background-attachment: fixed;
-            min-height: 100vh; 
-            position: relative; 
-            padding-bottom: 40px;
-            font-size: 16px; 
-        }
-        .container {
-            max-width: 700px;
-            margin: 0 auto;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2); 
-            padding: 25px;
-            position: relative;
-        }
-        
-        #login-screen, #primeiro-acesso-screen, #recuperar-senha-screen {
-            text-align: center;
-        }
-        
-        .login-logo {
-            max-width: 300px;
-            margin: 20px auto;
-        }
-        
-        .login-form {
-            max-width: 400px;
-            margin: 30px auto;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-        }
-        
-        .login-form input {
-            margin-bottom: 15px;
-            padding: 12px;
-            width: 100%;
-        }
-        
-        .login-form button {
-            width: 100%;
-            padding: 12px;
-            font-size: 1.1em;
-            margin-top: 10px;
-        }
-        
-        .login-footer {
-            margin-top: 20px;
-            font-size: 0.9em;
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        
-        .login-footer a {
-            color: #007bff;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        
-        .login-footer a:hover {
-            text-decoration: underline;
-        }
-        
-        .login-mensagem {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 6px;
-            display: none;
-        }
-        
-        .login-mensagem.erro {
-            background-color: #f8d7da;
-            color: #dc3545;
-            border: 1px solid #dc3545;
-            display: block;
-        }
-        
-        .login-mensagem.sucesso {
-            background-color: #d4edda;
-            color: #28a745;
-            border: 1px solid #28a745;
-            display: block;
-        }
-        
-        .login-mensagem.atencao {
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffc107;
-            display: block;
-        }
-
-        .password-container {
-            position: relative;
-            margin-bottom: 15px;
-        }
-        
-        .password-container input {
-            width: 100%;
-            padding: 12px;
-            padding-right: 45px;
-            margin-bottom: 0;
-        }
-        
-        .toggle-password {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.2em;
-            padding: 0;
-            margin: 0;
-            width: auto;
-            color: #6c757d;
-        }
-        
-        .usuario-logado {
-            position: absolute;
-            top: 25px;
-            right: 25px;
-            background: #e9ecef;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: bold;
-            color: #007bff;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            z-index: 100;
-        }
-        
-        .usuario-logado button {
-            margin: 0;
-            padding: 4px 10px;
-            font-size: 0.8em;
-            background-color: #6c757d;
-        }
-        
-        .logo {
-            display: block;
-            width: 80%; 
-            max-width: 350px;
-            height: auto;
-            margin: 0 auto 10px auto; 
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 0; 
-            font-size: 1.5em; 
-        }
-        h3 {
-            margin-top: 5px;
-            margin-bottom: 15px;
-            color: #555;
-            font-size: 1.2em;
-        }
-        .hidden {
-            display: none !important;
-        }
-        label {
-            display: block;
-            margin-top: 10px;
-            font-weight: bold;
-        }
-        input, select, textarea {
-            width: 100%;
-            font-size: 1em; 
-            padding: 8px;
-            margin-top: 4px;
-            border: 1px solid #ccc;
-            border-radius: 6px; 
-        }
-        
-        input.invalido, select.invalido, textarea.invalido {
-            border: 2px solid #dc3545 !important;
-            background-color: #fff8f8 !important;
-        }
-        
-        .input-group {
-            display: flex;
-            margin-top: 4px;
-            flex-wrap: wrap; 
-            gap: 5px;
-        }
-        
-        .input-group input {
-            flex: 1;
-            margin-top: 0;
-        }
-        
-        .input-group button {
-            margin-top: 0;
-            padding: 0 15px;
-            height: 36px; 
-        }
-
-        .gps-button {
-            background-color: #ff9800 !important;
-        }
-
-        input:read-only {
-            background-color: #f0f0f0;
-        }
-        
-        button {
-            margin-top: 15px;
-            padding: 10px 15px;
-            border: none;
-            background-color: #007bff;
-            color: #fff;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1em; 
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .action-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            gap: 10px;
-        }
-        .limpar {
-            background-color: #dc3545;
-        }
-        .validar {
-            background-color: #17a2b8;
-        }
-        .mensagem {
-            display: none;
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            z-index: 1000;
-            animation: fadeInOut 3s;
-        }
-        @keyframes fadeInOut {
-            0% { opacity: 0; top: 0; }
-            10% { opacity: 1; top: 20px; }
-            90% { opacity: 1; top: 20px; }
-            100% { opacity: 0; top: 0; }
-        }
-        
-        .back-button {
-            position: absolute;
-            top: 25px;
-            left: 25px;
-            background: #6c757d;
-        }
-        .back-button:hover {
-            background: #5a6268;
-        }
-
-        #home-buttons {
-            margin-top: 60px;
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-        }
-        #home-buttons button {
-            width: 45%;
-            padding: 20px;
-            font-size: 1.2em; 
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #fff;
-            font-size: 0.8em; 
-        }
-
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modal-content {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            max-width: 500px;
-            text-align: center;
-        }
-        
-        .status-indicator {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.9em;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-        
-        .status-valido {
-            background-color: #28a745;
-            color: white;
-        }
-        
-        .status-invalido {
-            background-color: #dc3545;
-            color: white;
-        }
-        
-        .status-verificando {
-            background-color: #ffc107;
-            color: black;
-        }
-
-        .id-info {
-            font-size: 0.85em;
-            color: #6c757d;
-            margin-top: 5px;
-            display: none;
-        }
-        
-        .motivo-outro-textarea {
-            margin-top: 10px;
-            display: none;
-        }
-        
-        @media (max-width: 500px) {
-            .container {
-                padding: 15px; 
-            }
-            .back-button {
-                position: static; 
-                display: block;
-                width: 100%;
-                margin: 0 0 15px 0; 
-            }
-            .usuario-logado {
-                position: static;
-                margin-bottom: 15px;
-                justify-content: center;
-            }
-        }
+        body{font-family:Arial,sans-serif;padding:20px;background:linear-gradient(135deg,#007bff 0%,#00c6ff 100%);background-attachment:fixed;min-height:100vh}
+        .container{max-width:700px;margin:0 auto;background:#fff;border-radius:12px;box-shadow:0 2px 15px rgba(0,0,0,0.2);padding:25px;position:relative}
+        #login-screen,#primeiro-acesso-screen,#recuperar-senha-screen{text-align:center}
+        .login-logo{max-width:300px;margin:20px auto}
+        .login-form{max-width:400px;margin:30px auto;padding:20px;background:#f8f9fa;border-radius:8px;border:1px solid #dee2e6}
+        .login-form input{margin-bottom:15px;padding:12px;width:100%}
+        .login-form button{width:100%;padding:12px;font-size:1.1em;margin-top:10px}
+        .login-footer{margin-top:20px;font-size:0.9em;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+        .login-footer a{color:#007bff;text-decoration:none;cursor:pointer}
+        .login-footer a:hover{text-decoration:underline}
+        .login-mensagem{margin-top:15px;padding:10px;border-radius:6px;display:none}
+        .login-mensagem.erro{background-color:#f8d7da;color:#dc3545;border:1px solid #dc3545;display:block}
+        .login-mensagem.sucesso{background-color:#d4edda;color:#28a745;border:1px solid #28a745;display:block}
+        .password-container{position:relative;margin-bottom:15px}
+        .password-container input{width:100%;padding:12px;padding-right:45px}
+        .toggle-password{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1.2em;color:#6c757d}
+        .usuario-logado{position:absolute;top:25px;right:25px;background:#e9ecef;padding:8px 15px;border-radius:20px;font-size:0.9em;font-weight:bold;color:#007bff;display:flex;align-items:center;gap:10px;z-index:100}
+        .usuario-logado button{margin:0;padding:4px 10px;font-size:0.8em;background-color:#6c757d}
+        .logo{display:block;width:80%;max-width:350px;margin:0 auto 10px}
+        h2{text-align:center;margin-bottom:0;font-size:1.5em}
+        h3{margin-top:5px;margin-bottom:15px;color:#555;font-size:1.2em}
+        .hidden{display:none !important}
+        label{display:block;margin-top:10px;font-weight:bold}
+        input,select,textarea{width:100%;font-size:1em;padding:8px;margin-top:4px;border:1px solid #ccc;border-radius:6px}
+        input.invalido,select.invalido,textarea.invalido{border:2px solid #dc3545 !important;background-color:#fff8f8}
+        .input-group{display:flex;margin-top:4px;flex-wrap:wrap;gap:5px}
+        .input-group input{flex:1;margin-top:0}
+        .input-group button{margin-top:0;padding:0 15px;height:36px}
+        .gps-button{background-color:#ff9800 !important}
+        input:read-only{background-color:#f0f0f0}
+        button{margin-top:15px;padding:10px 15px;border:none;background-color:#007bff;color:#fff;border-radius:6px;cursor:pointer;font-size:1em}
+        button:hover{background-color:#0056b3}
+        .action-buttons{display:flex;justify-content:space-between;margin-top:20px;gap:10px}
+        .limpar{background-color:#dc3545}
+        .validar{background-color:#17a2b8}
+        .mensagem{display:none;position:fixed;top:20px;left:50%;transform:translateX(-50%);color:#fff;padding:10px 20px;border-radius:8px;font-weight:bold;z-index:1000;animation:fadeInOut 3s}
+        @keyframes fadeInOut{0%{opacity:0;top:0}10%{opacity:1;top:20px}90%{opacity:1;top:20px}100%{opacity:0;top:0}}
+        .back-button{position:absolute;top:25px;left:25px;background:#6c757d}
+        .back-button:hover{background:#5a6268}
+        #home-buttons{margin-top:60px;display:flex;gap:20px;justify-content:center}
+        #home-buttons button{width:45%;padding:20px;font-size:1.2em}
+        .footer{text-align:center;margin-top:20px;color:#fff;font-size:0.8em}
+        .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center}
+        .modal-content{background:white;padding:25px;border-radius:12px;max-width:500px;text-align:center}
+        .status-indicator{display:inline-block;padding:3px 8px;border-radius:4px;font-size:0.9em;font-weight:bold;margin-left:10px}
+        .status-valido{background-color:#28a745;color:white}
+        .status-invalido{background-color:#dc3545;color:white}
+        .status-verificando{background-color:#ffc107;color:black}
+        .id-info{font-size:0.85em;color:#6c757d;margin-top:5px;display:none}
+        .motivo-outro-textarea{margin-top:10px;display:none}
+        @media (max-width:500px){.container{padding:15px}.back-button{position:static;display:block;width:100%;margin:0 0 15px 0}.usuario-logado{position:static;margin-bottom:15px;justify-content:center}}
     </style>
 </head>
 <body>
-    <div class="container">
-        <div id="mensagem" class="mensagem"></div>
-        
-        <div id="login-screen">
-            <img src="https://i.imgur.com/dvzRyus.png" alt="Logomarca Sem Fronteiras" class="logo login-logo">
-            <h2>Sistema de Chamados</h2>
-            
-            <div class="login-form">
-                <h3>Login</h3>
-                <input type="text" id="login-nome" placeholder="Digite seu nome">
-                <div class="password-container">
-                    <input type="password" id="login-senha" placeholder="Digite sua senha">
-                    <button type="button" class="toggle-password" onclick="togglePassword('login-senha', this)">👁️</button>
-                </div>
-                <button onclick="fazerLogin()">Entrar</button>
-                
-                <div class="login-footer">
-                    <a onclick="mostrarPrimeiroAcesso()">Primeiro acesso</a>
-                    <a onclick="mostrarRecuperarSenha()">Esqueci a senha</a>
-                </div>
-                
-                <div id="login-mensagem" class="login-mensagem"></div>
+<div class="container">
+    <div id="mensagem" class="mensagem"></div>
+    
+    <div id="login-screen">
+        <img src="https://i.imgur.com/dvzRyus.png" alt="Logomarca" class="logo login-logo">
+        <h2>Sistema de Chamados</h2>
+        <div class="login-form">
+            <h3>Login</h3>
+            <input type="text" id="login-nome" placeholder="Digite seu nome">
+            <div class="password-container">
+                <input type="password" id="login-senha" placeholder="Digite sua senha">
+                <button type="button" class="toggle-password" onclick="togglePassword('login-senha', this)">👁️</button>
+            </div>
+            <button onclick="fazerLogin()">Entrar</button>
+            <div class="login-footer">
+                <a onclick="mostrarPrimeiroAcesso()">Primeiro acesso</a>
+                <a onclick="mostrarRecuperarSenha()">Esqueci a senha</a>
+            </div>
+            <div id="login-mensagem" class="login-mensagem"></div>
+        </div>
+    </div>
+    
+    <div id="primeiro-acesso-screen" class="hidden">
+        <button class="back-button" onclick="voltarParaLogin()">Voltar</button>
+        <img src="https://i.imgur.com/dvzRyus.png" alt="Logomarca" class="logo">
+        <h2>Primeiro Acesso</h2>
+        <div class="login-form">
+            <h3>Crie sua conta</h3>
+            <input type="text" id="novo-usuario-nome" placeholder="Nome completo">
+            <div class="password-container">
+                <input type="password" id="novo-usuario-senha" placeholder="Senha (mínimo 4 caracteres)">
+                <button type="button" class="toggle-password" onclick="togglePassword('novo-usuario-senha', this)">👁️</button>
+            </div>
+            <div class="password-container">
+                <input type="password" id="novo-usuario-confirma-senha" placeholder="Confirme a senha">
+                <button type="button" class="toggle-password" onclick="togglePassword('novo-usuario-confirma-senha', this)">👁️</button>
+            </div>
+            <button onclick="criarPrimeiroAcesso()">Criar conta</button>
+            <div id="primeiro-acesso-mensagem" class="login-mensagem"></div>
+        </div>
+    </div>
+    
+    <div id="recuperar-senha-screen" class="hidden">
+        <button class="back-button" onclick="voltarParaLogin()">Voltar</button>
+        <img src="https://i.imgur.com/dvzRyus.png" alt="Logomarca" class="logo">
+        <h2>Recuperar Senha</h2>
+        <div id="etapa1-recuperar" class="login-form">
+            <h3>Etapa 1: Solicitar código</h3>
+            <input type="text" id="recuperar-nome" placeholder="Seu nome">
+            <button onclick="solicitarCodigoRecuperacao()">Solicitar código</button>
+        </div>
+        <div id="etapa2-recuperar" class="login-form hidden">
+            <h3>Etapa 2: Alterar senha</h3>
+            <input type="text" id="recuperar-codigo" placeholder="Código recebido">
+            <div class="password-container">
+                <input type="password" id="recuperar-nova-senha" placeholder="Nova senha">
+                <button type="button" class="toggle-password" onclick="togglePassword('recuperar-nova-senha', this)">👁️</button>
+            </div>
+            <div class="password-container">
+                <input type="password" id="recuperar-confirma-senha" placeholder="Confirme a nova senha">
+                <button type="button" class="toggle-password" onclick="togglePassword('recuperar-confirma-senha', this)">👁️</button>
+            </div>
+            <button onclick="alterarSenhaRecuperacao()">Alterar senha</button>
+        </div>
+        <div id="recuperar-senha-mensagem" class="login-mensagem"></div>
+    </div>
+    
+    <div id="sistema-screen" class="hidden">
+        <div class="usuario-logado">
+            <span id="usuarioLogadoNome"></span>
+            <button onclick="fazerLogout()">Sair</button>
+        </div>
+        <div id="home-screen">
+            <img src="https://i.imgur.com/dvzRyus.png" alt="Logomarca" class="logo">
+            <h2>Favor escolher uma das opções abaixo:</h2>
+            <div id="home-buttons">
+                <button onclick="showForm('implantacao')">Implantação</button>
+                <button onclick="showForm('ampliacao')">Ampliação</button>
             </div>
         </div>
-        
-        <div id="primeiro-acesso-screen" class="hidden">
-            <button type="button" class="back-button" onclick="voltarParaLogin()">Voltar</button>
-            <img src="https://i.imgur.com/dvzRyus.png" alt="Logomarca Sem Fronteiras" class="logo">
-            <h2>Primeiro Acesso</h2>
-            <div class="login-form">
-                <h3>Crie sua conta</h3>
-                <input type="text" id="novo-usuario-nome" placeholder="Digite seu nome completo">
-                <div class="password-container">
-                    <input type="password" id="novo-usuario-senha" placeholder="Digite sua senha (mínimo 4 caracteres)">
-                    <button type="button" class="toggle-password" onclick="togglePassword('novo-usuario-senha', this)">👁️</button>
+        <div id="form-screen" class="hidden">
+            <button class="back-button" onclick="showScreen('home')">Voltar</button>
+            <img src="https://i.imgur.com/dvzRyus.png" alt="Logomarca" class="logo">
+            <h2 id="titulo"></h2>
+            <form id="implantacao" class="hidden">
+                <label>Coordenadas:</label>
+                <div class="input-group">
+                    <input type="text" id="coordenadasImplantacao">
+                    <button type="button" onclick="geocodificarCoordenadas('implantacao')">Buscar</button>
                 </div>
-                <div class="password-container">
-                    <input type="password" id="novo-usuario-confirma-senha" placeholder="Confirme sua senha">
-                    <button type="button" class="toggle-password" onclick="togglePassword('novo-usuario-confirma-senha', this)">👁️</button>
+                <label>Endereço:</label>
+                <div class="input-group">
+                    <input type="text" id="enderecoImplantacao">
+                    <button type="button" onclick="geocodificarEndereco('implantacao')">Buscar</button>
+                    <button type="button" onclick="buscarPorLocalizacaoAtual('implantacao')" class="gps-button">GPS</button>
                 </div>
-                <button onclick="criarPrimeiroAcesso()">Criar conta</button>
-                <div id="primeiro-acesso-mensagem" class="login-mensagem"></div>
-            </div>
-        </div>
-        
-        <div id="recuperar-senha-screen" class="hidden">
-            <button type="button" class="back-button" onclick="voltarParaLogin()">Voltar</button>
-            <img src="https://i.imgur.com/dvzRyus.png" alt="Logomarca Sem Fronteiras" class="logo">
-            <h2>Recuperar Senha</h2>
-            <div id="etapa1-recuperar" class="login-form">
-                <h3>Etapa 1: Solicitar código</h3>
-                <input type="text" id="recuperar-nome" placeholder="Digite seu nome">
-                <button onclick="solicitarCodigoRecuperacao()">Solicitar código</button>
-            </div>
-            <div id="etapa2-recuperar" class="login-form hidden">
-                <h3>Etapa 2: Alterar senha</h3>
-                <input type="text" id="recuperar-codigo" placeholder="Digite o código recebido">
-                <div class="password-container">
-                    <input type="password" id="recuperar-nova-senha" placeholder="Nova senha (mínimo 4 caracteres)">
-                    <button type="button" class="toggle-password" onclick="togglePassword('recuperar-nova-senha', this)">👁️</button>
-                </div>
-                <div class="password-container">
-                    <input type="password" id="recuperar-confirma-senha" placeholder="Confirme a nova senha">
-                    <button type="button" class="toggle-password" onclick="togglePassword('recuperar-confirma-senha', this)">👁️</button>
-                </div>
-                <button onclick="alterarSenhaRecuperacao()">Alterar senha</button>
-            </div>
-            <div id="recuperar-senha-mensagem" class="login-mensagem"></div>
-        </div>
-        
-        <div id="sistema-screen" class="hidden">
-            <div class="usuario-logado">
-                <span id="usuarioLogadoNome"></span>
-                <button onclick="fazerLogout()">Sair</button>
-            </div>
-            
-            <div id="home-screen">
-                <img src="https://i.imgur.com/dvzRyus.png" alt="Logomarca Sem Fronteiras" class="logo">
-                <h2>Favor escolher uma das opções abaixo:</h2>
-                <div id="home-buttons">
-                    <button type="button" onclick="showForm('implantacao')">Implantação</button>
-                    <button type="button" onclick="showForm('ampliacao')">Ampliação</button>
-                </div>
-            </div>
-
-            <div id="form-screen" class="hidden">
-                <button type="button" class="back-button" id="back-btn" onclick="showScreen('home')">Voltar</button>
-                <img src="https://i.imgur.com/dvzRyus.png" alt="Logomarca Sem Fronteiras" class="logo logo-header">
-                <h2 id="titulo"></h2> 
-                
-                <form id="implantacao" class="hidden">
-                    <label>Coordenadas (Lat, Lon):</label>
-                    <div class="input-group">
-                        <input type="text" id="coordenadasImplantacao">
-                        <button type="button" onclick="geocodificarCoordenadas('implantacao')">Buscar</button>
-                    </div>
-                    <label>Endereço:</label>
-                    <div class="input-group">
-                        <input type="text" id="enderecoImplantacao"> 
-                        <button type="button" onclick="geocodificarEndereco('implantacao')">Buscar</button>
-                        <button type="button" onclick="buscarPorLocalizacaoAtual('implantacao')" class="gps-button">GPS</button>
-                    </div>
-                    <label>Localização (Link do Mapa):</label>
-                    <input type="text" id="localizacaoImplantacao" onclick="abrirLink('implantacao')" readonly placeholder="Link aparecerá aqui após a busca">
-                    <label>Responsável pelo pedido:</label>
-                    <input type="text" id="responsavelImplantacao">
-                    <label>Motivo da solicitação:</label>
-                    <div class="motivo-field">
-                        <select id="motivoSelectImplantacao" onchange="atualizarMotivoImplantacao()">
-                            <option value="">Selecione um motivo</option>
-                            <option>Caixa nova</option>
-                            <option>Atender novos clientes na localidade</option>
-                            <option>Atender mudança de endereço</option>
-                            <option>Caixa Lotada</option>
-                            <option>Outro</option>
-                        </select>
-                        <textarea id="motivoOutroImplantacao" class="motivo-outro-textarea" placeholder="Digite o motivo específico..."></textarea>
-                        <input type="text" id="motivoFinalImplantacao" style="display: none;">
-                    </div>
-                    <div class="action-buttons">
-                        <button type="button" onclick="gerarTexto('implantacao')">Gerar</button>
-                        <button type="button" class="limpar" onclick="limparFormulario('implantacao')">Limpar</button>
-                    </div>
-                </form>
-
-                <form id="ampliacao" class="hidden">
-                    <label>Coordenadas (Lat, Lon):</label>
-                    <div class="input-group">
-                        <input type="text" id="coordenadasAmpliacao">
-                        <button type="button" onclick="geocodificarCoordenadas('ampliacao')">Buscar</button>
-                    </div>
-                    <label>Endereço:</label>
-                    <div class="input-group">
-                        <input type="text" id="enderecoAmpliacao">
-                        <button type="button" onclick="geocodificarEndereco('ampliacao')">Buscar</button>
-                        <button type="button" onclick="buscarPorLocalizacaoAtual('ampliacao')" class="gps-button">GPS</button>
-                    </div>
-                    <label>Localização (Link do Mapa):</label>
-                    <input type="text" id="localizacaoAmpliacao" onclick="abrirLink('ampliacao')" readonly placeholder="Link aparecerá aqui após a busca">
-                    <label>Quantidade:</label>
-                    <input type="number" id="quantidadeAmpliacao" min="1" step="1" value="1" onchange="validarQuantidadeComIds()" onkeyup="validarQuantidadeComIds()">
-                    <label>Projeto:</label>
-                    <select id="projetoAmpliacao" onchange="atualizarOLT('ampliacao')">
-                        <option value="">Selecione um projeto</option>
-                        <option>FTTH Albert Sampaio</option><option>FTTH Assis Brasil</option><option>FTTH Benfica</option>
-                        <option>FTTH Bujari</option><option>FTTH Canaã</option><option>FTTH Cidade do Povo</option>
-                        <option>FTTH Maison Borges</option><option>FTTH Município do Quinari</option><option>FTTH Ouricuri</option>
-                        <option>FTTH Parte Alta 2</option><option>FTTH Primeiro Distrito Data Center VLG</option>
-                        <option>FTTH Primeiro Distrito Esperança</option><option>FTTH Primeiro Distrito Sobral</option>
-                        <option>FTTH Primeiro Distrito XGPON</option><option>FTTH Segundo Distrito Belo Jardim</option>
-                        <option>FTTH Segundo Distrito Bom Jesus</option><option>FTTH Sena Madureira</option>
-                        <option>FTTH Tancredo Neves</option><option>FTTH Taquari</option><option>FTTH Xavier Maia</option>
+                <label>Localização (Link):</label>
+                <input type="text" id="localizacaoImplantacao" onclick="abrirLink('implantacao')" readonly placeholder="Link aparecerá aqui">
+                <label>Responsável:</label>
+                <input type="text" id="responsavelImplantacao">
+                <label>Motivo:</label>
+                <div class="motivo-field">
+                    <select id="motivoSelectImplantacao" onchange="atualizarMotivoImplantacao()">
+                        <option value="">Selecione</option>
+                        <option>Caixa nova</option><option>Atender novos clientes</option>
+                        <option>Atender mudança de endereço</option><option>Caixa Lotada</option><option>Outro</option>
                     </select>
-                    <label>OLT:</label>
-                    <input type="text" id="oltAmpliacao" readonly>
-                    <label>ID(s):</label>
-                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                        <input type="text" id="idAmpliacao" onblur="validarQuantidadeComIds()" onkeyup="validarQuantidadeComIds()" placeholder="Ex: ID1, ID2, ID3" style="flex: 1;">
-                        <span id="statusId" class="status-indicator status-verificando" style="display: none;">Verificando...</span>
-                    </div>
-                    <div class="id-info" id="idInfo"></div>
-                    <label>Responsável pelo pedido:</label>
-                    <input type="text" id="responsavelAmpliacao">
-                    <label>Motivo da solicitação:</label>
-                    <div class="motivo-field">
-                        <select id="motivoSelectAmpliacao" onchange="atualizarMotivoAmpliacao()">
-                            <option value="">Selecione um motivo</option>
-                            <option>Atender novos clientes na localidade</option>
-                            <option>Atender mudança de endereço</option>
-                            <option>Caixa Lotada</option>
-                            <option>Outro</option>
-                        </select>
-                        <textarea id="motivoOutroAmpliacao" class="motivo-outro-textarea" placeholder="Digite o motivo específico..."></textarea>
-                        <input type="text" id="motivoFinalAmpliacao" style="display: none;">
-                    </div>
-                    <div class="action-buttons">
-                        <button type="button" onclick="gerarTexto('ampliacao')">Gerar</button>
-                        <button type="button" class="validar" onclick="validarMultiplosIds()">Validar IDs</button>
-                        <button type="button" class="limpar" onclick="limparFormulario('ampliacao')">Limpar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        
-        <div id="confirmModal" class="modal-overlay">
-            <div class="modal-content">
-                <h3>📋 IDs já cadastrados!</h3>
-                <p id="modalMessage">Carregando...</p>
-                <div>
-                    <button class="btn-confirmar" onclick="confirmarAcao('manter')">✅ Manter existentes</button>
-                    <button class="btn-confirmar" onclick="confirmarAcao('alterar')">✏️ Sobrescrever</button>
-                    <button class="btn-cancelar" onclick="confirmarAcao('cancelar')">❌ Cancelar</button>
+                    <textarea id="motivoOutroImplantacao" class="motivo-outro-textarea" placeholder="Digite o motivo..."></textarea>
                 </div>
-            </div>
+                <div class="action-buttons">
+                    <button type="button" onclick="gerarTexto('implantacao')">Gerar</button>
+                    <button type="button" class="limpar" onclick="limparFormulario('implantacao')">Limpar</button>
+                </div>
+            </form>
+            <form id="ampliacao" class="hidden">
+                <label>Coordenadas:</label>
+                <div class="input-group">
+                    <input type="text" id="coordenadasAmpliacao">
+                    <button type="button" onclick="geocodificarCoordenadas('ampliacao')">Buscar</button>
+                </div>
+                <label>Endereço:</label>
+                <div class="input-group">
+                    <input type="text" id="enderecoAmpliacao">
+                    <button type="button" onclick="geocodificarEndereco('ampliacao')">Buscar</button>
+                    <button type="button" onclick="buscarPorLocalizacaoAtual('ampliacao')" class="gps-button">GPS</button>
+                </div>
+                <label>Localização (Link):</label>
+                <input type="text" id="localizacaoAmpliacao" onclick="abrirLink('ampliacao')" readonly placeholder="Link aparecerá aqui">
+                <label>Quantidade:</label>
+                <input type="number" id="quantidadeAmpliacao" min="1" value="1" onchange="validarQuantidadeComIds()">
+                <label>Projeto:</label>
+                <select id="projetoAmpliacao" onchange="atualizarOLT('ampliacao')">
+                    <option value="">Selecione</option>
+                    <option>FTTH Albert Sampaio</option><option>FTTH Assis Brasil</option><option>FTTH Benfica</option>
+                    <option>FTTH Bujari</option><option>FTTH Canaã</option><option>FTTH Cidade do Povo</option>
+                    <option>FTTH Maison Borges</option><option>FTTH Município do Quinari</option><option>FTTH Ouricuri</option>
+                    <option>FTTH Parte Alta 2</option><option>FTTH Primeiro Distrito Data Center VLG</option>
+                    <option>FTTH Primeiro Distrito Esperança</option><option>FTTH Primeiro Distrito Sobral</option>
+                    <option>FTTH Primeiro Distrito XGPON</option><option>FTTH Segundo Distrito Belo Jardim</option>
+                    <option>FTTH Segundo Distrito Bom Jesus</option><option>FTTH Sena Madureira</option>
+                    <option>FTTH Tancredo Neves</option><option>FTTH Taquari</option><option>FTTH Xavier Maia</option>
+                </select>
+                <label>OLT:</label>
+                <input type="text" id="oltAmpliacao" readonly>
+                <label>ID(s):</label>
+                <div style="display:flex; gap:10px; align-items:center">
+                    <input type="text" id="idAmpliacao" placeholder="Ex: ID1, ID2" style="flex:1" onblur="validarQuantidadeComIds()">
+                    <span id="statusId" class="status-indicator status-verificando" style="display:none">Verificando...</span>
+                </div>
+                <div class="id-info" id="idInfo"></div>
+                <label>Responsável:</label>
+                <input type="text" id="responsavelAmpliacao">
+                <label>Motivo:</label>
+                <div class="motivo-field">
+                    <select id="motivoSelectAmpliacao" onchange="atualizarMotivoAmpliacao()">
+                        <option value="">Selecione</option>
+                        <option>Atender novos clientes</option><option>Atender mudança de endereço</option>
+                        <option>Caixa Lotada</option><option>Outro</option>
+                    </select>
+                    <textarea id="motivoOutroAmpliacao" class="motivo-outro-textarea" placeholder="Digite o motivo..."></textarea>
+                </div>
+                <div class="action-buttons">
+                    <button type="button" onclick="gerarTexto('ampliacao')">Gerar</button>
+                    <button type="button" class="validar" onclick="validarMultiplosIds()">Validar IDs</button>
+                    <button type="button" class="limpar" onclick="limparFormulario('ampliacao')">Limpar</button>
+                </div>
+            </form>
         </div>
-        
-        <div id="errosModal" class="modal-overlay">
-            <div class="modal-content">
-                <h3>❌ Campos obrigatórios não preenchidos!</h3>
-                <ul id="listaErros"></ul>
-                <button onclick="fecharErrosModal()">OK</button>
+    </div>
+    
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>📋 IDs já cadastrados!</h3>
+            <p id="modalMessage"></p>
+            <div>
+                <button onclick="confirmarAcao('manter')">✅ Manter existentes</button>
+                <button onclick="confirmarAcao('alterar')">✏️ Sobrescrever</button>
+                <button onclick="confirmarAcao('cancelar')">❌ Cancelar</button>
             </div>
         </div>
     </div>
-    <div class="footer">
-        Desenvolvido por Jhulio Soluções
+    
+    <div id="errosModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>❌ Campos obrigatórios não preenchidos!</h3>
+            <ul id="listaErros"></ul>
+            <button onclick="fecharErrosModal()">OK</button>
+        </div>
     </div>
+</div>
+<div class="footer">Desenvolvido por Jhulio Soluções</div>
 
-    <script>
-        // ============================================
-        // CONFIGURAÇÃO
-        // ============================================
-        const SUPABASE_URL = 'https://oikjeybrhyiccaqrtcws.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9pa2pleWJyaHlpY2NhcXJ0Y3dzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NzUxMDYsImV4cCI6MjA5NTU1MTEwNn0.OJOOyBCfqJl5HtYJfPFs-1LESN3e3vMdZthwNFGJ7xo';
-        
-        let supabaseClient = null;
-        let usuarioAtual = '';
-        let dadosBanco = null;
-        let nomeRecuperacao = '';
+<script>
+const SUPABASE_URL = 'https://oikjeybrhyiccaqrtcws.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9pa2pleWJyaHlpY2NhcXJ0Y3dzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NzUxMDYsImV4cCI6MjA5NTU1MTEwNn0.OJOOyBCfqJl5HtYJfPFs-1LESN3e3vMdZthwNFGJ7xo';
 
-        const oltMap = {
-            "FTTH Albert Sampaio": "Cidade do Povo",
-            "FTTH Assis Brasil": "Assis Brasil",
-            "FTTH Benfica": "Benfica",
-            "FTTH Bujari": "Bujari",
-            "FTTH Canaã": "Canaã",
-            "FTTH Cidade do Povo": "Cidade do Povo",
-            "FTTH Maison Borges": "Maison Borges/Alphaville Custódio",
-            "FTTH Município do Quinari": "Quinari",
-            "FTTH Ouricuri": "Ouricuri",
-            "FTTH Parte Alta 2": "Parte Alta",
-            "FTTH Primeiro Distrito Data Center VLG": "Parte Alta",
-            "FTTH Primeiro Distrito Esperança": "Esperança/Calafate",
-            "FTTH Primeiro Distrito Sobral": "Sobral/XGPON",
-            "FTTH Primeiro Distrito XGPON": "XGPON",
-            "FTTH Segundo Distrito Belo Jardim": "Segundo Distrito",
-            "FTTH Segundo Distrito Bom Jesus": "Bom Jesus",
-            "FTTH Sena Madureira": "Sena Madureira",
-            "FTTH Tancredo Neves": "Parte Alta",
-            "FTTH Taquari": "Segundo Distrito",
-            "FTTH Xavier Maia": "Parte Alta"
-        };
+let supabaseClient = null;
+let usuarioAtual = '';
+let dadosBanco = null;
+let nomeRecuperacao = '';
 
-        // Inicialização
-        window.addEventListener('DOMContentLoaded', function() {
-            console.log('Inicializando...');
-            
-            if (typeof supabase !== 'undefined' && supabase.createClient) {
-                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                mostrarMensagem('✅ Conectado ao Supabase!', 'sucesso');
-                console.log('Supabase conectado');
-            } else {
-                console.error('Supabase não carregou');
-                mostrarMensagem('Erro ao carregar Supabase. Recarregue a página.', 'erro');
-            }
-        });
+const oltMap = {
+    "FTTH Albert Sampaio": "Cidade do Povo","FTTH Assis Brasil": "Assis Brasil","FTTH Benfica": "Benfica",
+    "FTTH Bujari": "Bujari","FTTH Canaã": "Canaã","FTTH Cidade do Povo": "Cidade do Povo",
+    "FTTH Maison Borges": "Maison Borges/Alphaville Custódio","FTTH Município do Quinari": "Quinari",
+    "FTTH Ouricuri": "Ouricuri","FTTH Parte Alta 2": "Parte Alta","FTTH Primeiro Distrito Data Center VLG": "Parte Alta",
+    "FTTH Primeiro Distrito Esperança": "Esperança/Calafate","FTTH Primeiro Distrito Sobral": "Sobral/XGPON",
+    "FTTH Primeiro Distrito XGPON": "XGPON","FTTH Segundo Distrito Belo Jardim": "Segundo Distrito",
+    "FTTH Segundo Distrito Bom Jesus": "Bom Jesus","FTTH Sena Madureira": "Sena Madureira",
+    "FTTH Tancredo Neves": "Parte Alta","FTTH Taquari": "Segundo Distrito","FTTH Xavier Maia": "Parte Alta"
+};
 
-        function mostrarMensagem(texto, tipo = 'sucesso') {
-            const msg = document.getElementById('mensagem');
-            msg.textContent = texto;
-            msg.style.backgroundColor = tipo === 'erro' ? '#dc3545' : '#28a745';
-            msg.style.color = '#fff';
-            msg.style.display = 'block';
-            setTimeout(() => { msg.style.display = 'none'; }, 3000);
-        }
+window.addEventListener('DOMContentLoaded', function() {
+    if (typeof supabase !== 'undefined' && supabase.createClient) {
+        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        mostrarMensagem('✅ Conectado ao banco de dados!', 'sucesso');
+    } else {
+        mostrarMensagem('Erro ao carregar Supabase', 'erro');
+    }
+});
 
-        function togglePassword(inputId, btn) {
-            const input = document.getElementById(inputId);
-            input.type = input.type === 'password' ? 'text' : 'password';
-            btn.textContent = input.type === 'password' ? '👁️' : '🙈';
-        }
+function mostrarMensagem(texto, tipo) {
+    const msg = document.getElementById('mensagem');
+    msg.textContent = texto;
+    msg.style.backgroundColor = tipo === 'erro' ? '#dc3545' : '#28a745';
+    msg.style.display = 'block';
+    setTimeout(() => msg.style.display = 'none', 3000);
+}
 
-        function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    input.type = input.type === 'password' ? 'text' : 'password';
+    btn.textContent = input.type === 'password' ? '👁️' : '🙈';
+}
 
-        // Navegação
-        function mostrarPrimeiroAcesso() {
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('primeiro-acesso-screen').classList.remove('hidden');
-        }
-        
-        function mostrarRecuperarSenha() {
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('recuperar-senha-screen').classList.remove('hidden');
-            document.getElementById('etapa1-recuperar').classList.remove('hidden');
-            document.getElementById('etapa2-recuperar').classList.add('hidden');
-        }
-        
-        function voltarParaLogin() {
-            document.getElementById('primeiro-acesso-screen').classList.add('hidden');
-            document.getElementById('recuperar-senha-screen').classList.add('hidden');
-            document.getElementById('login-screen').classList.remove('hidden');
-        }
-        
-        function showScreen(screenType) {
-            const home = document.getElementById("home-screen");
-            const formScreen = document.getElementById("form-screen");
-            const backBtn = document.getElementById("back-btn");
-            if (screenType === 'home') {
-                home.classList.remove("hidden");
-                formScreen.classList.add("hidden");
-            } else {
-                home.classList.add("hidden");
-                formScreen.classList.remove("hidden");
-            }
-        }
-        
-        function showForm(type) {
-            showScreen('form');
-            document.getElementById("implantacao").classList.add("hidden");
-            document.getElementById("ampliacao").classList.add("hidden");
-            document.getElementById(type).classList.remove("hidden");
-            document.getElementById("titulo").textContent = type === "implantacao" ? "Formulário de Implantação" : "Formulário de Ampliação";
-            preencherResponsavel(type);
-            if (type === 'ampliacao') {
-                document.getElementById('statusId').style.display = 'none';
-                document.getElementById('idInfo').style.display = 'none';
-            }
-        }
-        
-        function atualizarOLT(formType) {
-            if (formType === 'implantacao') return;
-            const projeto = document.getElementById(`projeto${capitalize(formType)}`).value;
-            document.getElementById(`olt${capitalize(formType)}`).value = oltMap[projeto] || "";
-        }
-        
-        function abrirLink(tipo) {
-            const link = document.getElementById(`localizacao${capitalize(tipo)}`).value;
-            if (link && link.startsWith('http')) window.open(link, '_blank');
-            else mostrarMensagem("Link inválido", 'erro');
-        }
+function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
 
-        // Login
-        async function fazerLogin() {
-            if (!supabaseClient) { mostrarMensagem('Aguardando conexão...', 'erro'); return; }
-            
-            const nome = document.getElementById('login-nome').value.trim();
-            const senha = document.getElementById('login-senha').value.trim();
-            
-            if (!nome || !senha) {
-                mostrarMensagem('Preencha todos os campos!', 'erro');
-                return;
-            }
-            
-            try {
-                const { data, error } = await supabaseClient
-                    .from('usuarios')
-                    .select('*')
-                    .eq('nome', nome)
-                    .eq('senha', senha)
-                    .maybeSingle();
-                
-                if (error || !data) {
-                    mostrarMensagem('Usuário ou senha inválidos', 'erro');
-                    return;
-                }
-                
-                usuarioAtual = data.nome;
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('sistema-screen').classList.remove('hidden');
-                document.getElementById('usuarioLogadoNome').textContent = usuarioAtual;
-                preencherResponsavel('implantacao');
-                preencherResponsavel('ampliacao');
-                mostrarMensagem(`Bem-vindo, ${usuarioAtual}!`, 'sucesso');
-            } catch(e) {
-                mostrarMensagem('Erro de conexão', 'erro');
-            }
+function mostrarPrimeiroAcesso() {
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('primeiro-acesso-screen').classList.remove('hidden');
+}
+
+function mostrarRecuperarSenha() {
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('recuperar-senha-screen').classList.remove('hidden');
+    document.getElementById('etapa1-recuperar').classList.remove('hidden');
+    document.getElementById('etapa2-recuperar').classList.add('hidden');
+}
+
+function voltarParaLogin() {
+    document.getElementById('primeiro-acesso-screen').classList.add('hidden');
+    document.getElementById('recuperar-senha-screen').classList.add('hidden');
+    document.getElementById('login-screen').classList.remove('hidden');
+}
+
+function showScreen(screenType) {
+    const home = document.getElementById('home-screen');
+    const formScreen = document.getElementById('form-screen');
+    if (screenType === 'home') {
+        home.classList.remove('hidden');
+        formScreen.classList.add('hidden');
+    } else {
+        home.classList.add('hidden');
+        formScreen.classList.remove('hidden');
+    }
+}
+
+function showForm(type) {
+    showScreen('form');
+    document.getElementById('implantacao').classList.add('hidden');
+    document.getElementById('ampliacao').classList.add('hidden');
+    document.getElementById(type).classList.remove('hidden');
+    document.getElementById('titulo').textContent = type === 'implantacao' ? 'Formulário de Implantação' : 'Formulário de Ampliação';
+    preencherResponsavel(type);
+    if (type === 'ampliacao') {
+        document.getElementById('statusId').style.display = 'none';
+        document.getElementById('idInfo').style.display = 'none';
+    }
+}
+
+function atualizarOLT(formType) {
+    if (formType === 'implantacao') return;
+    const projeto = document.getElementById(`projeto${capitalize(formType)}`).value;
+    document.getElementById(`olt${capitalize(formType)}`).value = oltMap[projeto] || '';
+}
+
+function abrirLink(tipo) {
+    const link = document.getElementById(`localizacao${capitalize(tipo)}`).value;
+    if (link && link.startsWith('http')) window.open(link, '_blank');
+    else mostrarMensagem('Link inválido', 'erro');
+}
+
+// ========== FUNÇÃO DE LOGIN CORRIGIDA ==========
+async function fazerLogin() {
+    if (!supabaseClient) { mostrarMensagem('Aguardando conexão...', 'erro'); return; }
+    
+    const nome = document.getElementById('login-nome').value.trim();
+    const senha = document.getElementById('login-senha').value.trim();
+    
+    if (!nome || !senha) {
+        mostrarMensagem('Preencha todos os campos!', 'erro');
+        return;
+    }
+    
+    try {
+        // Usando ilike para ignorar maiúsculas/minúsculas
+        const { data, error } = await supabaseClient
+            .from('usuarios')
+            .select('*')
+            .ilike('nome', nome)
+            .maybeSingle();
+        
+        if (error || !data) {
+            mostrarMensagem('Usuário não encontrado!', 'erro');
+            return;
         }
         
-        async function criarPrimeiroAcesso() {
-            if (!supabaseClient) { mostrarMensagem('Aguardando conexão...', 'erro'); return; }
-            
-            const nome = document.getElementById('novo-usuario-nome').value.trim();
-            const senha = document.getElementById('novo-usuario-senha').value.trim();
-            const confirma = document.getElementById('novo-usuario-confirma-senha').value.trim();
-            
-            if (!nome || !senha || !confirma) {
-                mostrarMensagem('Preencha todos os campos!', 'erro');
-                return;
-            }
-            if (senha.length < 4) {
-                mostrarMensagem('Senha deve ter pelo menos 4 caracteres', 'erro');
-                return;
-            }
-            if (senha !== confirma) {
-                mostrarMensagem('Senhas não conferem', 'erro');
-                return;
-            }
-            
-            try {
-                const { error } = await supabaseClient
-                    .from('usuarios')
-                    .insert([{ nome, senha, primeiro_acesso: true, data_criacao: new Date().toISOString() }]);
-                
-                if (error) {
-                    mostrarMensagem(error.code === '23505' ? 'Usuário já existe!' : 'Erro ao criar conta', 'erro');
-                    return;
-                }
-                
-                mostrarMensagem('Conta criada! Faça login.', 'sucesso');
-                setTimeout(() => { voltarParaLogin(); document.getElementById('login-nome').value = nome; }, 2000);
-            } catch(e) { mostrarMensagem('Erro de conexão', 'erro'); }
+        if (data.senha !== senha) {
+            mostrarMensagem('Senha incorreta!', 'erro');
+            return;
         }
         
-        async function solicitarCodigoRecuperacao() {
-            if (!supabaseClient) { mostrarMensagem('Aguardando conexão...', 'erro'); return; }
-            const nome = document.getElementById('recuperar-nome').value.trim();
-            if (!nome) { mostrarMensagem('Digite seu nome', 'erro'); return; }
-            nomeRecuperacao = nome;
-            const codigo = Math.floor(100000 + Math.random() * 900000).toString();
-            try {
-                const { error } = await supabaseClient.from('usuarios').update({ codigo_recuperacao: codigo }).eq('nome', nome);
-                if (error) { mostrarMensagem('Usuário não encontrado', 'erro'); return; }
-                mostrarMensagem(`Código: ${codigo} (simulado)`, 'sucesso');
-                document.getElementById('etapa1-recuperar').classList.add('hidden');
-                document.getElementById('etapa2-recuperar').classList.remove('hidden');
-            } catch(e) { mostrarMensagem('Erro de conexão', 'erro'); }
+        usuarioAtual = data.nome;
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('sistema-screen').classList.remove('hidden');
+        document.getElementById('usuarioLogadoNome').textContent = usuarioAtual;
+        preencherResponsavel('implantacao');
+        preencherResponsavel('ampliacao');
+        mostrarMensagem(`Bem-vindo, ${usuarioAtual}!`, 'sucesso');
+        
+    } catch(e) {
+        console.error(e);
+        mostrarMensagem('Erro de conexão', 'erro');
+    }
+}
+// ==============================================
+
+async function criarPrimeiroAcesso() {
+    if (!supabaseClient) { mostrarMensagem('Aguardando conexão...', 'erro'); return; }
+    const nome = document.getElementById('novo-usuario-nome').value.trim();
+    const senha = document.getElementById('novo-usuario-senha').value.trim();
+    const confirma = document.getElementById('novo-usuario-confirma-senha').value.trim();
+    if (!nome || !senha || !confirma) { mostrarMensagem('Preencha todos os campos', 'erro'); return; }
+    if (senha.length < 4) { mostrarMensagem('Senha deve ter 4+ caracteres', 'erro'); return; }
+    if (senha !== confirma) { mostrarMensagem('Senhas não conferem', 'erro'); return; }
+    try {
+        const { error } = await supabaseClient.from('usuarios').insert([{ nome, senha, primeiro_acesso: true, data_criacao: new Date().toISOString() }]);
+        if (error) { mostrarMensagem(error.code === '23505' ? 'Usuário já existe!' : 'Erro ao criar conta', 'erro'); return; }
+        mostrarMensagem('Conta criada! Faça login.', 'sucesso');
+        setTimeout(() => { voltarParaLogin(); document.getElementById('login-nome').value = nome; }, 2000);
+    } catch(e) { mostrarMensagem('Erro de conexão', 'erro'); }
+}
+
+async function solicitarCodigoRecuperacao() {
+    if (!supabaseClient) { mostrarMensagem('Aguardando conexão...', 'erro'); return; }
+    const nome = document.getElementById('recuperar-nome').value.trim();
+    if (!nome) { mostrarMensagem('Digite seu nome', 'erro'); return; }
+    nomeRecuperacao = nome;
+    const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+    try {
+        const { error } = await supabaseClient.from('usuarios').update({ codigo_recuperacao: codigo }).ilike('nome', nome);
+        if (error) { mostrarMensagem('Usuário não encontrado', 'erro'); return; }
+        mostrarMensagem(`Código: ${codigo} (simulado)`, 'sucesso');
+        document.getElementById('etapa1-recuperar').classList.add('hidden');
+        document.getElementById('etapa2-recuperar').classList.remove('hidden');
+    } catch(e) { mostrarMensagem('Erro de conexão', 'erro'); }
+}
+
+async function alterarSenhaRecuperacao() {
+    if (!supabaseClient) { mostrarMensagem('Aguardando conexão...', 'erro'); return; }
+    const codigo = document.getElementById('recuperar-codigo').value.trim();
+    const novaSenha = document.getElementById('recuperar-nova-senha').value.trim();
+    const confirma = document.getElementById('recuperar-confirma-senha').value.trim();
+    if (!codigo || !novaSenha || !confirma) { mostrarMensagem('Preencha todos os campos', 'erro'); return; }
+    if (novaSenha.length < 4) { mostrarMensagem('Senha deve ter 4+ caracteres', 'erro'); return; }
+    if (novaSenha !== confirma) { mostrarMensagem('Senhas não conferem', 'erro'); return; }
+    try {
+        const { error } = await supabaseClient.from('usuarios').update({ senha: novaSenha, codigo_recuperacao: null }).eq('codigo_recuperacao', codigo).ilike('nome', nomeRecuperacao);
+        if (error) { mostrarMensagem('Código inválido', 'erro'); return; }
+        mostrarMensagem('Senha alterada! Faça login.', 'sucesso');
+        setTimeout(() => voltarParaLogin(), 2000);
+    } catch(e) { mostrarMensagem('Erro de conexão', 'erro'); }
+}
+
+function fazerLogout() {
+    usuarioAtual = '';
+    document.getElementById('sistema-screen').classList.add('hidden');
+    document.getElementById('login-screen').classList.remove('hidden');
+    document.getElementById('login-nome').value = '';
+    document.getElementById('login-senha').value = '';
+}
+
+function preencherResponsavel(tipo) {
+    const campo = document.getElementById(`responsavel${capitalize(tipo)}`);
+    if (campo && usuarioAtual && !campo.value.trim()) campo.value = usuarioAtual;
+}
+
+function atualizarMotivoImplantacao() {
+    const select = document.getElementById('motivoSelectImplantacao');
+    const outro = document.getElementById('motivoOutroImplantacao');
+    if (select.value === 'Outro') outro.style.display = 'block';
+    else outro.style.display = 'none';
+}
+
+function getMotivoFinalImplantacao() {
+    const select = document.getElementById('motivoSelectImplantacao');
+    const outro = document.getElementById('motivoOutroImplantacao');
+    return select.value === 'Outro' ? (outro ? outro.value.trim() : '') : select.value;
+}
+
+function atualizarMotivoAmpliacao() {
+    const select = document.getElementById('motivoSelectAmpliacao');
+    const outro = document.getElementById('motivoOutroAmpliacao');
+    if (select.value === 'Outro') outro.style.display = 'block';
+    else outro.style.display = 'none';
+}
+
+function getMotivoFinalAmpliacao() {
+    const select = document.getElementById('motivoSelectAmpliacao');
+    const outro = document.getElementById('motivoOutroAmpliacao');
+    return select.value === 'Outro' ? (outro ? outro.value.trim() : '') : select.value;
+}
+
+function buscarPorLocalizacaoAtual(tipo) {
+    mostrarMensagem('Obtendo GPS...', 'sucesso');
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            pos => { document.getElementById(`coordenadas${capitalize(tipo)}`).value = `${pos.coords.latitude}, ${pos.coords.longitude}`; geocodificarCoordenadas(tipo); },
+            () => mostrarMensagem('Erro ao obter localização', 'erro')
+        );
+    } else mostrarMensagem('GPS não suportado', 'erro');
+}
+
+function setAddressFieldsEditable(tipo, editable) {
+    document.getElementById(`endereco${capitalize(tipo)}`).readOnly = !editable;
+    document.getElementById(`localizacao${capitalize(tipo)}`).readOnly = !editable;
+}
+
+function setCoordenadasEditable(tipo, editable) {
+    document.getElementById(`coordenadas${capitalize(tipo)}`).readOnly = !editable;
+}
+
+async function geocodificarCoordenadas(tipo) {
+    const coords = document.getElementById(`coordenadas${capitalize(tipo)}`).value.trim();
+    if (!coords) { mostrarMensagem('Insira coordenadas', 'erro'); return; }
+    const partes = coords.replace(/,/g, ' ').split(/\s+/).filter(p => p);
+    if (partes.length < 2) { mostrarMensagem('Formato inválido', 'erro'); return; }
+    const lat = parseFloat(partes[0]), lon = parseFloat(partes[1]);
+    try {
+        const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`, { headers: { 'User-Agent': 'Sistema/1.0' } });
+        const data = await resp.json();
+        if (data.address) {
+            const addr = data.address;
+            let end = `${addr.road || 'Rua'} ${addr.house_number || ''}, ${addr.city || ''} ${addr.state_abbr || ''}`.trim();
+            document.getElementById(`endereco${capitalize(tipo)}`).value = end;
+            document.getElementById(`localizacao${capitalize(tipo)}`).value = `https://www.google.com/maps?q=${lat},${lon}`;
+            mostrarMensagem('Endereço encontrado', 'sucesso');
         }
-        
-        async function alterarSenhaRecuperacao() {
-            if (!supabaseClient) { mostrarMensagem('Aguardando conexão...', 'erro'); return; }
-            const codigo = document.getElementById('recuperar-codigo').value.trim();
-            const novaSenha = document.getElementById('recuperar-nova-senha').value.trim();
-            const confirma = document.getElementById('recuperar-confirma-senha').value.trim();
-            if (!codigo || !novaSenha || !confirma) { mostrarMensagem('Preencha todos os campos', 'erro'); return; }
-            if (novaSenha.length < 4) { mostrarMensagem('Senha deve ter 4+ caracteres', 'erro'); return; }
-            if (novaSenha !== confirma) { mostrarMensagem('Senhas não conferem', 'erro'); return; }
-            try {
-                const { error } = await supabaseClient.from('usuarios').update({ senha: novaSenha, codigo_recuperacao: null }).eq('nome', nomeRecuperacao).eq('codigo_recuperacao', codigo);
-                if (error) { mostrarMensagem('Código inválido', 'erro'); return; }
-                mostrarMensagem('Senha alterada! Faça login.', 'sucesso');
-                setTimeout(() => voltarParaLogin(), 2000);
-            } catch(e) { mostrarMensagem('Erro de conexão', 'erro'); }
-        }
-        
-        function fazerLogout() {
-            usuarioAtual = '';
-            document.getElementById('sistema-screen').classList.add('hidden');
-            document.getElementById('login-screen').classList.remove('hidden');
-            document.getElementById('login-nome').value = '';
-            document.getElementById('login-senha').value = '';
-        }
-        
-        function preencherResponsavel(tipo) {
-            const campo = document.getElementById(`responsavel${capitalize(tipo)}`);
-            if (campo && usuarioAtual && !campo.value.trim()) campo.value = usuarioAtual;
-        }
-        
-        // Motivos
-        function atualizarMotivoImplantacao() {
-            const select = document.getElementById('motivoSelectImplantacao');
-            const outro = document.getElementById('motivoOutroImplantacao');
-            const final = document.getElementById('motivoFinalImplantacao');
-            if (select.value === 'Outro') { outro.style.display = 'block'; final.value = ''; }
-            else { outro.style.display = 'none'; final.value = select.value; }
-        }
-        
-        function getMotivoFinalImplantacao() {
-            const select = document.getElementById('motivoSelectImplantacao');
-            const outro = document.getElementById('motivoOutroImplantacao');
-            return select.value === 'Outro' ? (outro ? outro.value.trim() : '') : select.value;
-        }
-        
-        function atualizarMotivoAmpliacao() {
-            const select = document.getElementById('motivoSelectAmpliacao');
-            const outro = document.getElementById('motivoOutroAmpliacao');
-            const final = document.getElementById('motivoFinalAmpliacao');
-            if (select.value === 'Outro') { outro.style.display = 'block'; final.value = ''; }
-            else { outro.style.display = 'none'; final.value = select.value; }
-        }
-        
-        function getMotivoFinalAmpliacao() {
-            const select = document.getElementById('motivoSelectAmpliacao');
-            const outro = document.getElementById('motivoOutroAmpliacao');
-            return select.value === 'Outro' ? (outro ? outro.value.trim() : '') : select.value;
-        }
-        
-        // Geolocalização
-        function buscarPorLocalizacaoAtual(tipo) {
-            mostrarMensagem("Obtendo GPS...", 'sucesso');
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (pos) => {
-                        document.getElementById(`coordenadas${capitalize(tipo)}`).value = `${pos.coords.latitude}, ${pos.coords.longitude}`;
-                        geocodificarCoordenadas(tipo);
-                    },
-                    () => mostrarMensagem("Erro ao obter localização", 'erro')
-                );
-            } else { mostrarMensagem("GPS não suportado", 'erro'); }
-        }
-        
-        function setAddressFieldsEditable(tipo, editable) {
-            document.getElementById(`endereco${capitalize(tipo)}`).readOnly = !editable;
-            document.getElementById(`localizacao${capitalize(tipo)}`).readOnly = !editable;
-        }
-        
-        function setCoordenadasEditable(tipo, editable) {
-            document.getElementById(`coordenadas${capitalize(tipo)}`).readOnly = !editable;
-        }
-        
-        async function geocodificarCoordenadas(tipo) {
-            const coords = document.getElementById(`coordenadas${capitalize(tipo)}`).value.trim();
-            if (!coords) { mostrarMensagem("Insira coordenadas", 'erro'); return; }
-            const partes = coords.replace(/,/g, ' ').split(/\s+/).filter(p => p);
-            if (partes.length < 2) { mostrarMensagem("Formato inválido", 'erro'); return; }
-            const lat = parseFloat(partes[0]), lon = parseFloat(partes[1]);
-            try {
-                const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`, { headers: { 'User-Agent': 'Sistema/1.0' } });
-                const data = await resp.json();
-                if (data.address) {
-                    const addr = data.address;
-                    let end = `${addr.road || 'Rua'} ${addr.house_number || ''}, ${addr.city || ''} ${addr.state_abbr || ''}`.trim();
-                    document.getElementById(`endereco${capitalize(tipo)}`).value = end;
-                    document.getElementById(`localizacao${capitalize(tipo)}`).value = `https://www.google.com/maps?q=${lat},${lon}`;
-                    mostrarMensagem("Endereço encontrado", 'sucesso');
-                }
-            } catch(e) { mostrarMensagem("Erro na busca", 'erro'); }
-        }
-        
-        async function geocodificarEndereco(tipo) {
-            const end = document.getElementById(`endereco${capitalize(tipo)}`).value.trim();
-            if (!end) { mostrarMensagem("Insira um endereço", 'erro'); return; }
-            try {
-                const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(end)}&limit=1`, { headers: { 'User-Agent': 'Sistema/1.0' } });
-                const data = await resp.json();
-                if (data.length > 0) {
-                    document.getElementById(`coordenadas${capitalize(tipo)}`).value = `${data[0].lat}, ${data[0].lon}`;
-                    document.getElementById(`localizacao${capitalize(tipo)}`).value = `https://www.google.com/maps?q=${data[0].lat},${data[0].lon}`;
-                    mostrarMensagem("Coordenadas encontradas", 'sucesso');
-                } else { mostrarMensagem("Endereço não encontrado", 'erro'); }
-            } catch(e) { mostrarMensagem("Erro na busca", 'erro'); }
-        }
-        
-        // IDs
-        function processarMultiplosIds() {
-            const texto = document.getElementById('idAmpliacao').value.trim();
-            if (!texto) return [];
-            const ids = texto.split(',').map(i => i.trim()).filter(i => i);
-            const valido = ids.every(id => /^[A-Za-z0-9]+$/.test(id));
-            if (!valido) { mostrarMensagem('Formato inválido. Use: ID1, ID2', 'erro'); return []; }
-            return ids;
-        }
-        
-        function validarQuantidadeComIds() {
-            const qtd = parseInt(document.getElementById('quantidadeAmpliacao').value) || 1;
-            const ids = processarMultiplosIds();
-            const info = document.getElementById('idInfo');
-            if (qtd > 1) { info.textContent = "Separe por vírgula: ID1, ID2, ID3"; info.style.display = 'block'; }
-            else { info.style.display = 'none'; }
-            if (ids.length && ids.length !== qtd) mostrarMensagem(`Quantidade ${qtd} não bate com IDs (${ids.length})`, 'atencao');
-            if (ids.length && ids.length === qtd) verificarMultiplosIds();
-        }
-        
-        async function verificarMultiplosIds() {
-            if (!supabaseClient) return;
-            const ids = processarMultiplosIds();
-            const qtd = parseInt(document.getElementById('quantidadeAmpliacao').value) || 1;
-            const statusSpan = document.getElementById('statusId');
-            if (ids.length !== qtd) return;
-            statusSpan.style.display = 'inline-block';
-            statusSpan.className = 'status-indicator status-verificando';
-            statusSpan.textContent = 'Verificando...';
-            
-            let existentes = [], disponiveis = [], detalhes = [];
-            for (const id of ids) {
-                const { data } = await supabaseClient.from('chamados').select('id_cto, data, responsavel, projeto').eq('id_cto', id).maybeSingle();
-                if (data) { existentes.push(id); detalhes.push(data); }
-                else { disponiveis.push(id); }
-            }
-            
-            if (existentes.length > 0) {
-                statusSpan.className = 'status-indicator status-invalido';
-                statusSpan.textContent = existentes.length === 1 ? '❌ ID existe' : '❌ IDs existem';
-                let msg = `<strong>IDs já cadastrados:</strong> ${existentes.join(', ')}<br><br>`;
-                detalhes.forEach(d => { msg += `ID ${d.id_cto}: ${d.data} - ${d.responsavel}<br>`; });
-                msg += `<br><strong>O que deseja fazer?</strong>`;
-                document.getElementById('modalMessage').innerHTML = msg;
-                document.getElementById('confirmModal').style.display = 'flex';
-                dadosBanco = { existentes, disponiveis, detalhes };
-            } else {
-                statusSpan.className = 'status-indicator status-valido';
-                statusSpan.textContent = ids.length === 1 ? '✅ Disponível' : '✅ Todos disponíveis';
-                dadosBanco = null;
-            }
-        }
-        
-        function validarMultiplosIds() { verificarMultiplosIds(); }
-        
-        async function confirmarAcao(acao) {
-            document.getElementById('confirmModal').style.display = 'none';
-            if (acao === 'cancelar' || !dadosBanco) { dadosBanco = null; return; }
-            
-            const end = document.getElementById('enderecoAmpliacao').value;
-            const loc = document.getElementById('localizacaoAmpliacao').value;
-            const coord = document.getElementById('coordenadasAmpliacao').value;
-            const proj = document.getElementById('projetoAmpliacao').value;
-            const olt = document.getElementById('oltAmpliacao').value;
-            const resp = document.getElementById('responsavelAmpliacao').value;
-            const mot = getMotivoFinalAmpliacao();
-            const hoje = new Date().toLocaleDateString('pt-BR');
-            const ids = processarMultiplosIds();
-            
-            let texto = '';
-            let salvos = 0;
-            const idsParaSalvar = acao === 'manter' ? dadosBanco.disponiveis : ids;
-            
-            for (const id of idsParaSalvar) {
-                texto += `ID: ${id}\nEndereço: ${end}\nLocalização: ${loc}\nCoordenadas: ${coord}\nProjeto: ${proj}\nOLT: ${olt}\nResponsável: ${resp}\nMotivo: ${mot}\n\n`;
-                await supabaseClient.from('chamados').upsert({ id_cto: id, data: hoje, endereco: end, coordenadas: coord, localizacao: loc, quantidade: 1, projeto: proj, olt: olt, responsavel: resp, motivo: mot, status: 'ativo' }, { onConflict: 'id_cto' });
-                salvos++;
-            }
-            
-            navigator.clipboard.writeText(texto);
-            mostrarMensagem(`✅ ${salvos} OS geradas!`, 'sucesso');
-            document.getElementById('statusId').style.display = 'none';
-            dadosBanco = null;
-        }
-        
-        function validarCampos(tipo) {
-            const erros = [];
-            const campos = [{id:`coordenadas${capitalize(tipo)}`, nome:'Coordenadas'}, {id:`endereco${capitalize(tipo)}`, nome:'Endereço'}, {id:`localizacao${capitalize(tipo)}`, nome:'Localização'}, {id:`responsavel${capitalize(tipo)}`, nome:'Responsável'}];
-            if (tipo === 'ampliacao') campos.push({id:'quantidadeAmpliacao', nome:'Quantidade'}, {id:'projetoAmpliacao', nome:'Projeto'}, {id:'idAmpliacao', nome:'ID(s)'});
-            
-            campos.forEach(c => {
-                const el = document.getElementById(c.id);
-                if (el) el.classList.remove('invalido');
-            });
-            
-            for (const c of campos) {
-                const el = document.getElementById(c.id);
-                if (!el) continue;
-                const val = el.value.trim();
-                if (!val) { erros.push(`${c.nome} não pode estar vazio`); el.classList.add('invalido'); }
-                else if (c.id === 'quantidadeAmpliacao' && (parseInt(val) < 1)) { erros.push('Quantidade deve ser >=1'); el.classList.add('invalido'); }
-                else if (c.id === 'projetoAmpliacao' && !val) { erros.push('Selecione um projeto'); el.classList.add('invalido'); }
-                else if (c.id === 'idAmpliacao') {
-                    const ids = val.split(',').map(i=>i.trim()).filter(i=>i);
-                    if (ids.length === 0) { erros.push('Informe pelo menos um ID'); el.classList.add('invalido'); }
-                    else {
-                        const qtd = parseInt(document.getElementById('quantidadeAmpliacao').value) || 1;
-                        if (ids.length !== qtd) { erros.push(`Número de IDs (${ids.length}) ≠ quantidade (${qtd})`); el.classList.add('invalido'); }
-                    }
-                }
-            }
-            
-            const motivo = tipo === 'implantacao' ? getMotivoFinalImplantacao() : getMotivoFinalAmpliacao();
-            if (!motivo) { erros.push('Selecione ou especifique o motivo'); }
-            return erros;
-        }
-        
-        function mostrarErros(erros) {
-            const lista = document.getElementById('listaErros');
-            lista.innerHTML = erros.map(e => `<li>${e}</li>`).join('');
-            document.getElementById('errosModal').style.display = 'flex';
-        }
-        
-        function fecharErrosModal() { document.getElementById('errosModal').style.display = 'none'; }
-        
-        async function gerarTexto(tipo) {
-            const erros = validarCampos(tipo);
-            if (erros.length > 0) { mostrarErros(erros); return; }
-            
-            if (tipo === 'implantacao') {
-                const texto = `Dados da Implantação\n\nEndereço: ${document.getElementById('enderecoImplantacao').value}\nLocalização: ${document.getElementById('localizacaoImplantacao').value}\nCoordenadas: ${document.getElementById('coordenadasImplantacao').value}\nResponsável: ${document.getElementById('responsavelImplantacao').value}\nMotivo: ${getMotivoFinalImplantacao()}`;
-                navigator.clipboard.writeText(texto);
-                mostrarMensagem('✅ Script gerado!', 'sucesso');
-            } else {
-                const ids = processarMultiplosIds();
+    } catch(e) { mostrarMensagem('Erro na busca', 'erro'); }
+}
+
+async function geocodificarEndereco(tipo) {
+    const end = document.getElementById(`endereco${capitalize(tipo)}`).value.trim();
+    if (!end) { mostrarMensagem('Insira um endereço', 'erro'); return; }
+    try {
+        const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(end)}&limit=1`, { headers: { 'User-Agent': 'Sistema/1.0' } });
+        const data = await resp.json();
+        if (data.length > 0) {
+            document.getElementById(`coordenadas${capitalize(tipo)}`).value = `${data[0].lat}, ${data[0].lon}`;
+            document.getElementById(`localizacao${capitalize(tipo)}`).value = `https://www.google.com/maps?q=${data[0].lat},${data[0].lon}`;
+            mostrarMensagem('Coordenadas encontradas', 'sucesso');
+        } else mostrarMensagem('Endereço não encontrado', 'erro');
+    } catch(e) { mostrarMensagem('Erro na busca', 'erro'); }
+}
+
+function processarMultiplosIds() {
+    const texto = document.getElementById('idAmpliacao').value.trim();
+    if (!texto) return [];
+    const ids = texto.split(',').map(i => i.trim()).filter(i => i);
+    const valido = ids.every(id => /^[A-Za-z0-9]+$/.test(id));
+    if (!valido) { mostrarMensagem('Formato inválido. Use: ID1, ID2', 'erro'); return []; }
+    return ids;
+}
+
+function validarQuantidadeComIds() {
+    const qtd = parseInt(document.getElementById('quantidadeAmpliacao').value) || 1;
+    const ids = processarMultiplosIds();
+    const info = document.getElementById('idInfo');
+    if (qtd > 1) { info.textContent = 'Separe por vírgula: ID1, ID2, ID3'; info.style.display = 'block'; }
+    else info.style.display = 'none';
+    if (ids.length && ids.length !== qtd) mostrarMensagem(`Quantidade ${qtd} não bate com IDs (${ids.length})`, 'atencao');
+    if (ids.length && ids.length === qtd) verificarMultiplosIds();
+}
+
+async function verificarMultiplosIds() {
+    if (!supabaseClient) return;
+    const ids = processarMultiplosIds();
+    const qtd = parseInt(document.getElementById('quantidadeAmpliacao').value) || 1;
+    const statusSpan = document.getElementById('statusId');
+    if (ids.length !== qtd) return;
+    statusSpan.style.display = 'inline-block';
+    statusSpan.className = 'status-indicator status-verificando';
+    statusSpan.textContent = 'Verificando...';
+    let existentes = [], disponiveis = [], detalhes = [];
+    for (const id of ids) {
+        const { data } = await supabaseClient.from('chamados').select('id_cto, data, responsavel, projeto').eq('id_cto', id).maybeSingle();
+        if (data) { existentes.push(id); detalhes.push(data); }
+        else disponiveis.push(id);
+    }
+    if (existentes.length > 0) {
+        statusSpan.className = 'status-indicator status-invalido';
+        statusSpan.textContent = existentes.length === 1 ? '❌ ID existe' : '❌ IDs existem';
+        let msg = `<strong>IDs já cadastrados:</strong> ${existentes.join(', ')}<br><br>`;
+        detalhes.forEach(d => msg += `ID ${d.id_cto}: ${d.data} - ${d.responsavel}<br>`);
+        msg += `<br><strong>O que deseja fazer?</strong>`;
+        document.getElementById('modalMessage').innerHTML = msg;
+        document.getElementById('confirmModal').style.display = 'flex';
+        dadosBanco = { existentes, disponiveis, detalhes };
+    } else {
+        statusSpan.className = 'status-indicator status-valido';
+        statusSpan.textContent = ids.length === 1 ? '✅ Disponível' : '✅ Todos disponíveis';
+        dadosBanco = null;
+    }
+}
+
+function validarMultiplosIds() { verificarMultiplosIds(); }
+
+async function confirmarAcao(acao) {
+    document.getElementById('confirmModal').style.display = 'none';
+    if (acao === 'cancelar' || !dadosBanco) { dadosBanco = null; return; }
+    const end = document.getElementById('enderecoAmpliacao').value;
+    const loc = document.getElementById('localizacaoAmpliacao').value;
+    const coord = document.getElementById('coordenadasAmpliacao').value;
+    const proj = document.getElementById('projetoAmpliacao').value;
+    const olt = document.getElementById('oltAmpliacao').value;
+    const resp = document.getElementById('responsavelAmpliacao').value;
+    const mot = getMotivoFinalAmpliacao();
+    const hoje = new Date().toLocaleDateString('pt-BR');
+    const ids = processarMultiplosIds();
+    let texto = '', salvos = 0;
+    const idsParaSalvar = acao === 'manter' ? dadosBanco.disponiveis : ids;
+    for (const id of idsParaSalvar) {
+        texto += `ID: ${id}\nEndereço: ${end}\nLocalização: ${loc}\nCoordenadas: ${coord}\nProjeto: ${proj}\nOLT: ${olt}\nResponsável: ${resp}\nMotivo: ${mot}\n\n`;
+        await supabaseClient.from('chamados').upsert({ id_cto: id, data: hoje, endereco: end, coordenadas: coord, localizacao: loc, quantidade: 1, projeto: proj, olt: olt, responsavel: resp, motivo: mot, status: 'ativo' }, { onConflict: 'id_cto' });
+        salvos++;
+    }
+    navigator.clipboard.writeText(texto);
+    mostrarMensagem(`✅ ${salvos} OS geradas!`, 'sucesso');
+    document.getElementById('statusId').style.display = 'none';
+    dadosBanco = null;
+}
+
+function validarCampos(tipo) {
+    const erros = [];
+    const campos = [{id:`coordenadas${capitalize(tipo)}`,nome:'Coordenadas'},{id:`endereco${capitalize(tipo)}`,nome:'Endereço'},{id:`localizacao${capitalize(tipo)}`,nome:'Localização'},{id:`responsavel${capitalize(tipo)}`,nome:'Responsável'}];
+    if (tipo === 'ampliacao') campos.push({id:'quantidadeAmpliacao',nome:'Quantidade'},{id:'projetoAmpliacao',nome:'Projeto'},{id:'idAmpliacao',nome:'ID(s)'});
+    campos.forEach(c => { const el = document.getElementById(c.id); if(el) el.classList.remove('invalido'); });
+    for (const c of campos) {
+        const el = document.getElementById(c.id);
+        if (!el) continue;
+        const val = el.value.trim();
+        if (!val) { erros.push(`${c.nome} não pode estar vazio`); el.classList.add('invalido'); }
+        else if (c.id === 'quantidadeAmpliacao' && (parseInt(val) < 1)) { erros.push('Quantidade deve ser >=1'); el.classList.add('invalido'); }
+        else if (c.id === 'projetoAmpliacao' && !val) { erros.push('Selecione um projeto'); el.classList.add('invalido'); }
+        else if (c.id === 'idAmpliacao') {
+            const ids = val.split(',').map(i=>i.trim()).filter(i=>i);
+            if (ids.length === 0) { erros.push('Informe pelo menos um ID'); el.classList.add('invalido'); }
+            else {
                 const qtd = parseInt(document.getElementById('quantidadeAmpliacao').value) || 1;
-                if (ids.length !== qtd) { mostrarMensagem(`Quantidade (${qtd}) ≠ IDs (${ids.length})`, 'erro'); return; }
-                
-                const statusSpan = document.getElementById('statusId');
-                statusSpan.style.display = 'inline-block';
-                statusSpan.className = 'status-indicator status-verificando';
-                statusSpan.textContent = 'Verificando...';
-                
-                const end = document.getElementById('enderecoAmpliacao').value;
-                const loc = document.getElementById('localizacaoAmpliacao').value;
-                const coord = document.getElementById('coordenadasAmpliacao').value;
-                const proj = document.getElementById('projetoAmpliacao').value;
-                const olt = document.getElementById('oltAmpliacao').value;
-                const resp = document.getElementById('responsavelAmpliacao').value;
-                const mot = getMotivoFinalAmpliacao();
-                const hoje = new Date().toLocaleDateString('pt-BR');
-                
-                let existentes = [];
-                for (const id of ids) {
-                    const { data } = await supabaseClient.from('chamados').select('id_cto').eq('id_cto', id).maybeSingle();
-                    if (data) existentes.push(id);
-                }
-                
-                if (existentes.length > 0) {
-                    statusSpan.className = 'status-indicator status-invalido';
-                    statusSpan.textContent = existentes.length === 1 ? '❌ ID existe' : '❌ IDs existem';
-                    let msg = `<strong>IDs já cadastrados:</strong> ${existentes.join(', ')}<br><br><strong>O que deseja fazer?</strong>`;
-                    document.getElementById('modalMessage').innerHTML = msg;
-                    document.getElementById('confirmModal').style.display = 'flex';
-                    dadosBanco = { existentes, disponiveis: ids.filter(i=>!existentes.includes(i)), detalhes: [] };
-                    return;
-                }
-                
-                let texto = '';
-                for (const id of ids) {
-                    texto += `ID: ${id}\nEndereço: ${end}\nLocalização: ${loc}\nCoordenadas: ${coord}\nProjeto: ${proj}\nOLT: ${olt}\nResponsável: ${resp}\nMotivo: ${mot}\n\n`;
-                    await supabaseClient.from('chamados').insert({ id_cto: id, data: hoje, endereco: end, coordenadas: coord, localizacao: loc, quantidade: 1, projeto: proj, olt: olt, responsavel: resp, motivo: mot, status: 'ativo' });
-                }
-                navigator.clipboard.writeText(texto);
-                mostrarMensagem(`✅ ${ids.length} OS gerada(s)!`, 'sucesso');
-                statusSpan.style.display = 'none';
+                if (ids.length !== qtd) { erros.push(`Número de IDs (${ids.length}) ≠ quantidade (${qtd})`); el.classList.add('invalido'); }
             }
         }
-        
-        function limparFormulario(tipo) {
-            document.getElementById(tipo).reset();
-            if (tipo === 'ampliacao') {
-                document.getElementById('oltAmpliacao').value = '';
-                document.getElementById('statusId').style.display = 'none';
-                document.getElementById('idInfo').style.display = 'none';
-                document.getElementById('motivoOutroAmpliacao').style.display = 'none';
-            } else {
-                document.getElementById('motivoOutroImplantacao').style.display = 'none';
-            }
-            preencherResponsavel(tipo);
-            mostrarMensagem('Formulário limpo!', 'sucesso');
+    }
+    const motivo = tipo === 'implantacao' ? getMotivoFinalImplantacao() : getMotivoFinalAmpliacao();
+    if (!motivo) erros.push('Selecione ou especifique o motivo');
+    return erros;
+}
+
+function mostrarErros(erros) {
+    const lista = document.getElementById('listaErros');
+    lista.innerHTML = erros.map(e => `<li>${e}</li>`).join('');
+    document.getElementById('errosModal').style.display = 'flex';
+}
+
+function fecharErrosModal() { document.getElementById('errosModal').style.display = 'none'; }
+
+async function gerarTexto(tipo) {
+    const erros = validarCampos(tipo);
+    if (erros.length > 0) { mostrarErros(erros); return; }
+    if (tipo === 'implantacao') {
+        const texto = `Dados da Implantação\n\nEndereço: ${document.getElementById('enderecoImplantacao').value}\nLocalização: ${document.getElementById('localizacaoImplantacao').value}\nCoordenadas: ${document.getElementById('coordenadasImplantacao').value}\nResponsável: ${document.getElementById('responsavelImplantacao').value}\nMotivo: ${getMotivoFinalImplantacao()}`;
+        navigator.clipboard.writeText(texto);
+        mostrarMensagem('✅ Script gerado!', 'sucesso');
+    } else {
+        const ids = processarMultiplosIds();
+        const qtd = parseInt(document.getElementById('quantidadeAmpliacao').value) || 1;
+        if (ids.length !== qtd) { mostrarMensagem(`Quantidade (${qtd}) ≠ IDs (${ids.length})`, 'erro'); return; }
+        const statusSpan = document.getElementById('statusId');
+        statusSpan.style.display = 'inline-block';
+        statusSpan.className = 'status-indicator status-verificando';
+        statusSpan.textContent = 'Verificando...';
+        const end = document.getElementById('enderecoAmpliacao').value;
+        const loc = document.getElementById('localizacaoAmpliacao').value;
+        const coord = document.getElementById('coordenadasAmpliacao').value;
+        const proj = document.getElementById('projetoAmpliacao').value;
+        const olt = document.getElementById('oltAmpliacao').value;
+        const resp = document.getElementById('responsavelAmpliacao').value;
+        const mot = getMotivoFinalAmpliacao();
+        const hoje = new Date().toLocaleDateString('pt-BR');
+        let existentes = [];
+        for (const id of ids) {
+            const { data } = await supabaseClient.from('chamados').select('id_cto').eq('id_cto', id).maybeSingle();
+            if (data) existentes.push(id);
         }
-        
-        window.onclick = function(e) {
-            if (e.target === document.getElementById('confirmModal')) document.getElementById('confirmModal').style.display = 'none';
-            if (e.target === document.getElementById('errosModal')) document.getElementById('errosModal').style.display = 'none';
-        };
-    </script>
+        if (existentes.length > 0) {
+            statusSpan.className = 'status-indicator status-invalido';
+            statusSpan.textContent = existentes.length === 1 ? '❌ ID existe' : '❌ IDs existem';
+            let msg = `<strong>IDs já cadastrados:</strong> ${existentes.join(', ')}<br><br><strong>O que deseja fazer?</strong>`;
+            document.getElementById('modalMessage').innerHTML = msg;
+            document.getElementById('confirmModal').style.display = 'flex';
+            dadosBanco = { existentes, disponiveis: ids.filter(i=>!existentes.includes(i)), detalhes: [] };
+            return;
+        }
+        let texto = '';
+        for (const id of ids) {
+            texto += `ID: ${id}\nEndereço: ${end}\nLocalização: ${loc}\nCoordenadas: ${coord}\nProjeto: ${proj}\nOLT: ${olt}\nResponsável: ${resp}\nMotivo: ${mot}\n\n`;
+            await supabaseClient.from('chamados').insert({ id_cto: id, data: hoje, endereco: end, coordenadas: coord, localizacao: loc, quantidade: 1, projeto: proj, olt: olt, responsavel: resp, motivo: mot, status: 'ativo' });
+        }
+        navigator.clipboard.writeText(texto);
+        mostrarMensagem(`✅ ${ids.length} OS gerada(s)!`, 'sucesso');
+        statusSpan.style.display = 'none';
+    }
+}
+
+function limparFormulario(tipo) {
+    document.getElementById(tipo).reset();
+    if (tipo === 'ampliacao') {
+        document.getElementById('oltAmpliacao').value = '';
+        document.getElementById('statusId').style.display = 'none';
+        document.getElementById('idInfo').style.display = 'none';
+        document.getElementById('motivoOutroAmpliacao').style.display = 'none';
+    } else {
+        document.getElementById('motivoOutroImplantacao').style.display = 'none';
+    }
+    preencherResponsavel(tipo);
+    mostrarMensagem('Formulário limpo!', 'sucesso');
+}
+
+window.onclick = function(e) {
+    if (e.target === document.getElementById('confirmModal')) document.getElementById('confirmModal').style.display = 'none';
+    if (e.target === document.getElementById('errosModal')) document.getElementById('errosModal').style.display = 'none';
+};
+</script>
 </body>
 </html>
