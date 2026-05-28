@@ -18,7 +18,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        /* Estilos gerais e de fundo */
+        /* Seus estilos aqui (mantenha os mesmos do código anterior) */
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
@@ -817,7 +817,40 @@
         const SUPABASE_URL = 'https://oikjeybrhyiccaqrtcws.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9pa2pleWJyaHlpY2NhcXJ0Y3dzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NzUxMDYsImV4cCI6MjA5NTU1MTEwNn0.OJOOyBCfqJl5HtYJfPFs-1LESN3e3vMdZthwNFGJ7xo';
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let supabaseClient = null;
+        
+        // Aguardar o carregamento do Supabase
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Aguardar um pouco para garantir que o script carregou
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                if (typeof supabase !== 'undefined' && supabase.createClient) {
+                    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    console.log('✅ Supabase conectado com sucesso!');
+                    mostrarMensagemSistema('Sistema conectado ao banco de dados!', 'sucesso');
+                } else {
+                    console.error('Erro: Supabase não carregou corretamente');
+                    mostrarMensagemSistema('Erro ao conectar ao banco de dados. Recarregue a página.', 'erro');
+                }
+            } catch (error) {
+                console.error('Erro ao inicializar Supabase:', error);
+                mostrarMensagemSistema('Erro de conexão. Recarregue a página.', 'erro');
+            }
+        });
+        
+        function mostrarMensagemSistema(texto, tipo = 'sucesso') {
+            const msgDiv = document.getElementById('mensagem');
+            if (msgDiv) {
+                msgDiv.textContent = texto;
+                msgDiv.style.backgroundColor = tipo === 'erro' ? '#dc3545' : '#28a745';
+                msgDiv.style.color = '#fff';
+                msgDiv.style.display = 'block';
+                setTimeout(() => {
+                    msgDiv.style.display = 'none';
+                }, 3000);
+            }
+        }
         
         // Mapeamento OLT
         const oltMap = {
@@ -916,6 +949,11 @@
         }
 
         async function fazerLogin() {
+            if (!supabaseClient) {
+                mostrarMensagemLogin('Aguardando conexão com o banco... Recarregue a página', 'erro');
+                return;
+            }
+            
             const nome = document.getElementById('login-nome').value.trim();
             const senha = document.getElementById('login-senha').value.trim();
             
@@ -925,12 +963,12 @@
             }
             
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('usuarios')
                     .select('*')
                     .eq('nome', nome)
                     .eq('senha', senha)
-                    .single();
+                    .maybeSingle();
                 
                 if (error || !data) {
                     mostrarMensagemLogin('Usuário ou senha inválidos', 'erro');
@@ -946,7 +984,7 @@
                 preencherResponsavel('implantacao');
                 preencherResponsavel('ampliacao');
                 
-                mostrarMensagem(`Bem-vindo, ${usuarioAtual}!`, 'sucesso');
+                mostrarMensagemLogin(`Bem-vindo, ${usuarioAtual}!`, 'sucesso');
                 
             } catch (error) {
                 console.error('Erro no login:', error);
@@ -955,6 +993,11 @@
         }
 
         async function criarPrimeiroAcesso() {
+            if (!supabaseClient) {
+                mostrarMensagemPrimeiroAcesso('Aguardando conexão com o banco...', 'erro');
+                return;
+            }
+            
             const nome = document.getElementById('novo-usuario-nome').value.trim();
             const senha = document.getElementById('novo-usuario-senha').value.trim();
             const confirma = document.getElementById('novo-usuario-confirma-senha').value.trim();
@@ -975,22 +1018,20 @@
             }
             
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('usuarios')
-                    .insert([
-                        { 
-                            nome: nome, 
-                            senha: senha,
-                            primeiro_acesso: true,
-                            data_criacao: new Date().toISOString()
-                        }
-                    ]);
+                    .insert([{ 
+                        nome: nome, 
+                        senha: senha,
+                        primeiro_acesso: true,
+                        data_criacao: new Date().toISOString()
+                    }]);
                 
                 if (error) {
                     if (error.code === '23505') {
                         mostrarMensagemPrimeiroAcesso('Usuário já existe!', 'erro');
                     } else {
-                        mostrarMensagemPrimeiroAcesso(error.message, 'erro');
+                        mostrarMensagemPrimeiroAcesso('Erro ao criar conta: ' + error.message, 'erro');
                     }
                     return;
                 }
@@ -1008,6 +1049,11 @@
         }
 
         async function solicitarCodigoRecuperacao() {
+            if (!supabaseClient) {
+                mostrarMensagemRecuperacao('Aguardando conexão...', 'erro');
+                return;
+            }
+            
             const nome = document.getElementById('recuperar-nome').value.trim();
             
             if (!nome) {
@@ -1020,12 +1066,12 @@
             try {
                 const codigo = Math.floor(100000 + Math.random() * 900000).toString();
                 
-                const { data, error } = await supabase
+                const { error } = await supabaseClient
                     .from('usuarios')
                     .update({ codigo_recuperacao: codigo })
                     .eq('nome', nome);
                 
-                if (error || !data || data.length === 0) {
+                if (error) {
                     mostrarMensagemRecuperacao('Usuário não encontrado', 'erro');
                     return;
                 }
@@ -1041,6 +1087,11 @@
         }
 
         async function alterarSenhaRecuperacao() {
+            if (!supabaseClient) {
+                mostrarMensagemRecuperacao('Aguardando conexão...', 'erro');
+                return;
+            }
+            
             const codigo = document.getElementById('recuperar-codigo').value.trim();
             const novaSenha = document.getElementById('recuperar-nova-senha').value.trim();
             const confirma = document.getElementById('recuperar-confirma-senha').value.trim();
@@ -1061,14 +1112,14 @@
             }
             
             try {
-                const { data, error } = await supabase
+                const { error } = await supabaseClient
                     .from('usuarios')
                     .update({ senha: novaSenha, codigo_recuperacao: null })
                     .eq('nome', nomeRecuperacao)
                     .eq('codigo_recuperacao', codigo);
                 
                 if (error) {
-                    mostrarMensagemRecuperacao('Erro ao alterar senha', 'erro');
+                    mostrarMensagemRecuperacao('Código inválido ou usuário não encontrado', 'erro');
                     return;
                 }
                 
@@ -1259,9 +1310,12 @@
             
             if (type === 'ampliacao') {
                 const statusSpan = document.getElementById('statusId');
-                statusSpan.style.display = 'none';
-                statusSpan.className = 'status-indicator';
-                document.getElementById('idInfo').style.display = 'none';
+                if (statusSpan) {
+                    statusSpan.style.display = 'none';
+                    statusSpan.className = 'status-indicator';
+                }
+                const idInfo = document.getElementById('idInfo');
+                if (idInfo) idInfo.style.display = 'none';
             }
         }
 
@@ -1270,7 +1324,7 @@
             
             const projetoSelect = document.getElementById(`projeto${capitalize(formType)}`);
             const oltField = document.getElementById(`olt${capitalize(formType)}`);
-            oltField.value = oltMap[projetoSelect.value] || "";
+            if (oltField) oltField.value = oltMap[projetoSelect.value] || "";
         }
         
         function abrirLink(tipo) {
@@ -1278,12 +1332,12 @@
             if (link && (link.startsWith('http://') || link.startsWith('https://'))) {
                 window.open(link, '_blank');
             } else {
-                mostrarMensagem("Link de Localização inválido ou não disponível.", 'erro');
+                mostrarMensagemSistema("Link de Localização inválido ou não disponível.", 'erro');
             }
         }
 
         function buscarPorLocalizacaoAtual(tipo) {
-            mostrarMensagem("Aguardando localização GPS...", 'sucesso');
+            mostrarMensagemSistema("Aguardando localização GPS...", 'sucesso');
             
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
@@ -1300,7 +1354,7 @@
                         if (error.code === 1) {
                             msgErro = "Acesso à localização negado. Por favor, permita o uso do GPS nas configurações do seu aparelho/navegador.";
                         }
-                        mostrarMensagem(msgErro, 'erro');
+                        mostrarMensagemSistema(msgErro, 'erro');
                     },
                     {
                         enableHighAccuracy: true,
@@ -1309,7 +1363,7 @@
                     }
                 );
             } else {
-                mostrarMensagem("Geolocalização não suportada neste navegador/aparelho.", 'erro');
+                mostrarMensagemSistema("Geolocalização não suportada neste navegador/aparelho.", 'erro');
             }
         }
 
@@ -1336,14 +1390,14 @@
             setCoordenadasEditable(tipo, true);
 
             if (!coordenadasInput) {
-                mostrarMensagem("Insira as coordenadas antes de buscar.", 'erro');
+                mostrarMensagemSistema("Insira as coordenadas antes de buscar.", 'erro');
                 return;
             }
 
             const partes = coordenadasInput.replace(/,/g, ' ').split(/\s+/).filter(p => p);
             
             if (partes.length < 2 || isNaN(parseFloat(partes[0])) || isNaN(parseFloat(partes[1]))) {
-                mostrarMensagem("Formato de coordenadas inválido. Permita a digitação manual.", 'erro');
+                mostrarMensagemSistema("Formato de coordenadas inválido. Permita a digitação manual.", 'erro');
                 return;
             }
 
@@ -1392,16 +1446,16 @@
                     if (enderecoCompleto.includes('Rua/Via desconhecida')) {
                         setAddressFieldsEditable(tipo, true);
                         setCoordenadasEditable(tipo, false);
-                        mostrarMensagem("⚠️ Endereço não encontrado. Por favor, digite o endereço correto manualmente.", 'atencao');
+                        mostrarMensagemSistema("⚠️ Endereço não encontrado. Por favor, digite o endereço correto manualmente.", 'atencao');
                     } else {
                         setAddressFieldsEditable(tipo, false);
                         setCoordenadasEditable(tipo, false);
-                        mostrarMensagem("✅ Endereço e Link de Localização preenchidos automaticamente.");
+                        mostrarMensagemSistema("✅ Endereço e Link de Localização preenchidos automaticamente.");
                     }
 
                 } else {
                     console.error('Geocodificação Reversa falhou:', data);
-                    mostrarMensagem("Não foi possível encontrar o endereço. Digite manualmente.", 'erro');
+                    mostrarMensagemSistema("Não foi possível encontrar o endereço. Digite manualmente.", 'erro');
                     
                     setAddressFieldsEditable(tipo, true);
                     setCoordenadasEditable(tipo, true);
@@ -1409,7 +1463,7 @@
 
             } catch (error) {
                 console.error('Erro na requisição Nominatim:', error);
-                mostrarMensagem("Erro de conexão. Digite o endereço e localização manualmente.", 'erro');
+                mostrarMensagemSistema("Erro de conexão. Digite o endereço e localização manualmente.", 'erro');
                 setAddressFieldsEditable(tipo, true);
                 setCoordenadasEditable(tipo, true);
             }
@@ -1425,7 +1479,7 @@
             setCoordenadasEditable(tipo, true);
 
             if (!enderecoInput) {
-                mostrarMensagem("Insira um endereço antes de buscar.", 'erro');
+                mostrarMensagemSistema("Insira um endereço antes de buscar.", 'erro');
                 return;
             }
 
@@ -1457,16 +1511,16 @@
                     
                     setAddressFieldsEditable(tipo, false);
                     setCoordenadasEditable(tipo, false);
-                    mostrarMensagem("Coordenadas e Link de Localização preenchidos pelo endereço.");
+                    mostrarMensagemSistema("Coordenadas e Link de Localização preenchidos pelo endereço.");
 
                 } else {
                     console.error('Geocodificação de Endereço falhou:', data);
-                    mostrarMensagem("Endereço não encontrado. Por favor, ajuste a digitação.", 'erro');
+                    mostrarMensagemSistema("Endereço não encontrado. Por favor, ajuste a digitação.", 'erro');
                 }
 
             } catch (error) {
                 console.error('Erro na requisição Nominatim:', error);
-                mostrarMensagem("Erro de conexão ao buscar endereço. Tente novamente.", 'erro');
+                mostrarMensagemSistema("Erro de conexão ao buscar endereço. Tente novamente.", 'erro');
             }
         }
 
@@ -1504,7 +1558,7 @@
             }
             
             if (!valido) {
-                mostrarMensagem('Formato inválido! Use apenas: ID1, ID2, ID3 (separado por vírgula e espaço)', 'erro');
+                mostrarMensagemSistema('Formato inválido! Use apenas: ID1, ID2, ID3 (separado por vírgula e espaço)', 'erro');
                 idsField.classList.add('invalido');
                 return [];
             }
@@ -1528,7 +1582,7 @@
             }
             
             if (ids.length > 0 && ids.length !== quantidade) {
-                mostrarMensagem(`⚠️ A quantidade (${quantidade}) não corresponde ao número de IDs informados (${ids.length})`, 'atencao');
+                mostrarMensagemSistema(`⚠️ A quantidade (${quantidade}) não corresponde ao número de IDs informados (${ids.length})`, 'atencao');
             }
             
             if (ids.length > 0 && ids.length === quantidade) {
@@ -1537,6 +1591,11 @@
         }
 
         async function verificarMultiplosIds() {
+            if (!supabaseClient) {
+                mostrarMensagemSistema('Aguardando conexão com o banco...', 'erro');
+                return;
+            }
+            
             const ids = processarMultiplosIds();
             const quantidade = parseInt(document.getElementById('quantidadeAmpliacao').value) || 1;
             const statusSpan = document.getElementById('statusId');
@@ -1547,7 +1606,7 @@
             }
             
             if (ids.length !== quantidade) {
-                mostrarMensagem(`⚠️ A quantidade (${quantidade}) deve ser igual ao número de IDs informados (${ids.length})`, 'atencao');
+                mostrarMensagemSistema(`⚠️ A quantidade (${quantidade}) deve ser igual ao número de IDs informados (${ids.length})`, 'atencao');
                 if (statusSpan) statusSpan.style.display = 'none';
                 return;
             }
@@ -1564,11 +1623,11 @@
             
             for (const id of ids) {
                 try {
-                    const { data, error } = await supabase
+                    const { data, error } = await supabaseClient
                         .from('chamados')
                         .select('id_cto, data, responsavel, projeto')
                         .eq('id_cto', id)
-                        .single();
+                        .maybeSingle();
                     
                     if (data && !error) {
                         idsExistentes.push(id);
@@ -1646,6 +1705,11 @@
         }
 
         async function confirmarAcao(acao) {
+            if (!supabaseClient) {
+                mostrarMensagemSistema('Aguardando conexão com o banco...', 'erro');
+                return;
+            }
+            
             document.getElementById('confirmModal').style.display = 'none';
             
             if (acao === 'cancelar') {
@@ -1702,7 +1766,7 @@
                 }
                 
                 navigator.clipboard.writeText(textoCompleto);
-                mostrarMensagem(`✅ ${contador} nova(s) OS gerada(s). ${idsExistentes.length} ignorada(s) por já existirem.`, 'sucesso');
+                mostrarMensagemSistema(`✅ ${contador} nova(s) OS gerada(s). ${idsExistentes.length} ignorada(s) por já existirem.`, 'sucesso');
                 
                 const statusSpan = document.getElementById('statusId');
                 if (statusSpan) statusSpan.style.display = 'none';
@@ -1741,7 +1805,7 @@
                 }
                 
                 navigator.clipboard.writeText(textoCompleto);
-                mostrarMensagem(`✅ ${contador} OS processadas (incluindo sobrescritas) e salvas no banco!`, 'sucesso');
+                mostrarMensagemSistema(`✅ ${contador} OS processadas (incluindo sobrescritas) e salvas no banco!`, 'sucesso');
                 
                 const statusSpan = document.getElementById('statusId');
                 if (statusSpan) statusSpan.style.display = 'none';
@@ -1751,8 +1815,10 @@
         }
         
         async function salvarAmpliacaoNoSheet(id, endereco, coordenadas, localizacao, projeto, olt, responsavel, motivo, data) {
+            if (!supabaseClient) return false;
+            
             try {
-                const { error } = await supabase
+                const { error } = await supabaseClient
                     .from('chamados')
                     .upsert({ 
                         id_cto: id,
@@ -1902,6 +1968,11 @@
         }
 
         async function gerarTexto(tipo) {
+            if (tipo === 'ampliacao' && !supabaseClient) {
+                mostrarMensagemSistema('Aguardando conexão com o banco de dados...', 'erro');
+                return;
+            }
+            
             const erros = validarCampos(tipo);
             
             if (erros.length > 0) {
@@ -1925,14 +1996,14 @@
                 texto += `Motivo da solicitação: ${motivo}\n\n`;
 
                 navigator.clipboard.writeText(texto);
-                mostrarMensagem("✅ Script de implantação gerado com sucesso!", 'sucesso');
+                mostrarMensagemSistema("✅ Script de implantação gerado com sucesso!", 'sucesso');
                 
             } else {
                 const ids = processarMultiplosIds();
                 const quantidade = parseInt(document.getElementById('quantidadeAmpliacao').value) || 1;
                 
                 if (ids.length !== quantidade) {
-                    mostrarMensagem(`⚠️ A quantidade (${quantidade}) deve ser igual ao número de IDs informados (${ids.length})`, 'atencao');
+                    mostrarMensagemSistema(`⚠️ A quantidade (${quantidade}) deve ser igual ao número de IDs informados (${ids.length})`, 'atencao');
                     return;
                 }
 
@@ -1958,11 +2029,11 @@
                 
                 for (const id of ids) {
                     try {
-                        const { data, error } = await supabase
+                        const { data, error } = await supabaseClient
                             .from('chamados')
                             .select('id_cto, data, responsavel, projeto')
                             .eq('id_cto', id)
-                            .single();
+                            .maybeSingle();
                         
                         if (data && !error) {
                             idsExistentes.push(id);
@@ -2029,7 +2100,7 @@
                     }
                     
                     navigator.clipboard.writeText(textoCompleto);
-                    mostrarMensagem("✅ Script de ampliação gerado com sucesso!", 'sucesso');
+                    mostrarMensagemSistema("✅ Script de ampliação gerado com sucesso!", 'sucesso');
                     
                     setTimeout(() => {
                         if (statusSpan) statusSpan.style.display = 'none';
@@ -2073,35 +2144,7 @@
             
             preencherResponsavel(tipo);
             
-            mostrarMensagem("Formulário limpo com sucesso!");
-        }
-
-        function mostrarMensagem(texto, tipo = 'sucesso') {
-            const msg = document.getElementById("mensagem");
-            if (!msg) return;
-            
-            msg.textContent = texto;
-
-            if (tipo === 'erro') {
-                msg.style.backgroundColor = '#dc3545';
-                msg.style.color = '#fff';
-            } else if (tipo === 'atencao') {
-                msg.style.backgroundColor = '#ffc107';
-                msg.style.color = '#000';
-            } else {
-                msg.style.backgroundColor = '#28a745';
-                msg.style.color = '#fff';
-            }
-
-            msg.style.display = "block";
-            
-            msg.style.animation = 'none';
-            void msg.offsetWidth;
-            msg.style.animation = 'fadeInOut 3s';
-
-            setTimeout(() => {
-                msg.style.display = "none";
-            }, 3000);
+            mostrarMensagemSistema("Formulário limpo com sucesso!");
         }
 
         // Fechar modal se clicar fora
@@ -2120,10 +2163,6 @@
                 errosModal.style.display = 'none';
             }
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('Sistema carregado com sucesso! Conectado ao Supabase!');
-        });
     </script>
 </body>
 </html>
