@@ -76,6 +76,16 @@
         .status-verificando{background-color:#ffc107;color:black}
         .id-info{font-size:0.85em;color:#6c757d;margin-top:5px;display:none}
         .motivo-outro-textarea{margin-top:10px;display:none}
+        .tipo-selector{margin:20px 0;display:flex;gap:15px;justify-content:center;flex-wrap:wrap}
+        .tipo-selector button{padding:12px 30px;font-size:1.1em;margin:0;min-width:120px}
+        .tipo-selector button.ativo{background-color:#28a745;box-shadow:0 2px 8px rgba(40,167,69,0.3)}
+        .pop-select{max-height:150px;overflow-y:auto}
+        .observacao-opcao{margin:8px 0}
+        .observacao-opcao label{font-weight:normal;margin-top:5px;cursor:pointer}
+        .observacao-opcao input[type="radio"]{width:auto;margin-right:8px;vertical-align:middle}
+        .observacao-opcao textarea{margin-top:8px}
+        .link-mapa{color:#007bff;cursor:pointer}
+        .link-mapa:hover{text-decoration:underline}
         @media (max-width:500px){.container{padding:15px}.back-button{position:static;display:block;width:100%;margin:0 0 15px 0}.usuario-logado{position:static;margin-bottom:15px;justify-content:center}}
     </style>
 </head>
@@ -164,6 +174,14 @@
             <button class="back-button" onclick="showScreen('home')">Voltar</button>
             <img src="https://i.imgur.com/dvzRyus.png" alt="Logomarca" class="logo">
             <h2 id="titulo"></h2>
+            
+            <!-- Selector de tipo para Implantação -->
+            <div id="tipo-selector-implantacao" class="tipo-selector hidden">
+                <button onclick="selecionarTipoImplantacao('ftth')" id="btn-ftth" class="ativo">FTTH</button>
+                <button onclick="selecionarTipoImplantacao('dados')" id="btn-dados">Dados</button>
+            </div>
+            
+            <!-- Formulário FTTH (existente) -->
             <form id="implantacao" class="hidden">
                 <label>Coordenadas (Lat, Lon):</label>
                 <div class="input-group">
@@ -197,6 +215,89 @@
                     <button type="button" class="limpar" onclick="limparFormulario('implantacao')">Limpar</button>
                 </div>
             </form>
+            
+            <!-- Formulário DADOS (novo) -->
+            <form id="implantacao-dados" class="hidden">
+                <h3 style="text-align:center;color:#007bff;margin-bottom:20px;">Implantação de Infraestrutura – Link Dedicado</h3>
+                
+                <label>Cliente:</label>
+                <input type="text" id="clienteDados">
+                
+                <label>Coordenadas:</label>
+                <div class="input-group">
+                    <input type="text" id="coordenadasDados">
+                    <button type="button" onclick="geocodificarCoordenadas('dados')">Buscar</button>
+                </div>
+                
+                <label>Endereço:</label>
+                <div class="input-group">
+                    <input type="text" id="enderecoDados">
+                    <button type="button" onclick="geocodificarEndereco('dados')">Buscar</button>
+                    <button type="button" onclick="buscarPorLocalizacaoAtual('dados')" class="gps-button">GPS</button>
+                </div>
+                
+                <label>Localização (Link do Mapa):</label>
+                <input type="text" id="localizacaoDados" onclick="abrirLink('dados')" readonly placeholder="Link aparecerá aqui após a busca">
+                
+                <label>Ponto de referência:</label>
+                <input type="text" id="pontoReferenciaDados" placeholder="Ex: Próximo ao supermercado...">
+                
+                <label>Pop de origem:</label>
+                <select id="popOrigemDados" class="pop-select">
+                    <option value="">Selecione um POP</option>
+                    <option>POP Albert Sampaio</option>
+                    <option>POP Assis Brasil</option>
+                    <option>POP Benfica</option>
+                    <option>POP Bujari</option>
+                    <option>POP Canaã</option>
+                    <option>POP Cidade do Povo</option>
+                    <option>POP Maison Borges</option>
+                    <option>POP Município do Quinari</option>
+                    <option>POP Ouricuri</option>
+                    <option>POP Parte Alta 2</option>
+                    <option>POP Primeiro Distrito Data Center VLG</option>
+                    <option>POP Primeiro Distrito Esperança</option>
+                    <option>POP Primeiro Distrito Sobral</option>
+                    <option>POP Primeiro Distrito XGPON</option>
+                    <option>POP Segundo Distrito Belo Jardim</option>
+                    <option>POP Segundo Distrito Bom Jesus</option>
+                    <option>POP Sena Madureira</option>
+                    <option>POP Tancredo Neves</option>
+                    <option>POP Taquari</option>
+                    <option>POP Xavier Maia</option>
+                </select>
+                
+                <label>Data limite para entrega:</label>
+                <input type="date" id="dataLimiteDados" min="">
+                
+                <label>Terminação no cliente:</label>
+                <select id="terminacaoDados">
+                    <option value="">Selecione a terminação</option>
+                    <option>Roseta 1FO</option>
+                    <option>DIO 12FO + Bandeja</option>
+                    <option>Roseta 1FO / DIO 12FO + Bandeja</option>
+                    <option>Roseta 1FO / DIO 12FO + Bandeja + Mikrotik</option>
+                </select>
+                
+                <label>Observações:</label>
+                <div class="observacao-opcao">
+                    <input type="radio" name="observacaoDados" value="opcao1" id="obs1" onchange="mostrarObservacao('obs1')">
+                    <label for="obs1">Infraestrutura responsável apenas pela entrega da fibra apagada</label>
+                    <textarea id="observacaoTexto1" style="display:none;margin-top:8px;" rows="4" placeholder="Informações para o projetista: distancia estimada do POP até o cliente, se precisou lançar cabo ou reaproveitou cabeamento existente, cor/número da FO utilizada, testes ópticos (teste OTDR) e traçado da fibra. Ativação e configuração do circuito serão realizadas por outra equipe."></textarea>
+                </div>
+                <div class="observacao-opcao">
+                    <input type="radio" name="observacaoDados" value="opcao2" id="obs2" onchange="mostrarObservacao('obs2')">
+                    <label for="obs2">Infraestrutura responsável pela entrega da instalação</label>
+                    <textarea id="observacaoTexto2" style="display:none;margin-top:8px;" rows="4" placeholder="Informações para o projetista: distancia estimada do POP até o cliente, se precisou lançar cabo ou reaproveitou cabeamento existente, cor/número da FO utilizada, testes ópticos (teste OTDR) e traçado da fibra. Ativação e configuração do circuito serão realizadas por outra equipe."></textarea>
+                </div>
+                
+                <div class="action-buttons">
+                    <button type="button" onclick="gerarTextoDados()">Gerar</button>
+                    <button type="button" class="limpar" onclick="limparFormularioDados()">Limpar</button>
+                </div>
+            </form>
+            
+            <!-- Formulário Ampliação (existente) -->
             <form id="ampliacao" class="hidden">
                 <label>Coordenadas (Lat, Lon):</label>
                 <div class="input-group">
@@ -285,6 +386,7 @@ let supabaseClient = null;
 let usuarioAtual = '';
 let dadosBanco = null;
 let nomeRecuperacao = '';
+let tipoImplantacaoAtual = 'ftth';
 
 const oltMap = {
     "FTTH Albert Sampaio": "Cidade do Povo","FTTH Assis Brasil": "Assis Brasil","FTTH Benfica": "Benfica",
@@ -304,6 +406,10 @@ window.addEventListener('DOMContentLoaded', function() {
     } else {
         mostrarMensagem('Erro ao carregar Supabase', 'erro');
     }
+    
+    // Define a data mínima para o campo de data
+    const hoje = new Date().toISOString().split('T')[0];
+    document.getElementById('dataLimiteDados').setAttribute('min', hoje);
 });
 
 function mostrarMensagem(texto, tipo) {
@@ -354,15 +460,50 @@ function showScreen(screenType) {
 
 function showForm(type) {
     showScreen('form');
+    
+    // Esconde todos os formulários
     document.getElementById('implantacao').classList.add('hidden');
+    document.getElementById('implantacao-dados').classList.add('hidden');
     document.getElementById('ampliacao').classList.add('hidden');
-    document.getElementById(type).classList.remove('hidden');
-    document.getElementById('titulo').textContent = type === 'implantacao' ? 'Formulário de Implantação' : 'Formulário de Ampliação';
-    preencherResponsavel(type);
-    if (type === 'ampliacao') {
+    document.getElementById('tipo-selector-implantacao').classList.add('hidden');
+    
+    if (type === 'implantacao') {
+        document.getElementById('titulo').textContent = 'Formulário de Implantação';
+        document.getElementById('tipo-selector-implantacao').classList.remove('hidden');
+        // Mostra o formulário FTTH por padrão
+        document.getElementById('implantacao').classList.remove('hidden');
+        tipoImplantacaoAtual = 'ftth';
+        document.getElementById('btn-ftth').classList.add('ativo');
+        document.getElementById('btn-dados').classList.remove('ativo');
+        preencherResponsavel('implantacao');
+    } else if (type === 'ampliacao') {
+        document.getElementById('titulo').textContent = 'Formulário de Ampliação';
+        document.getElementById('ampliacao').classList.remove('hidden');
         document.getElementById('statusId').style.display = 'none';
         document.getElementById('idInfo').style.display = 'none';
+        preencherResponsavel('ampliacao');
     }
+}
+
+function selecionarTipoImplantacao(tipo) {
+    tipoImplantacaoAtual = tipo;
+    document.getElementById('btn-ftth').classList.toggle('ativo', tipo === 'ftth');
+    document.getElementById('btn-dados').classList.toggle('ativo', tipo === 'dados');
+    
+    if (tipo === 'ftth') {
+        document.getElementById('implantacao').classList.remove('hidden');
+        document.getElementById('implantacao-dados').classList.add('hidden');
+        preencherResponsavel('implantacao');
+    } else {
+        document.getElementById('implantacao').classList.add('hidden');
+        document.getElementById('implantacao-dados').classList.remove('hidden');
+        preencherResponsavelDados();
+    }
+}
+
+function preencherResponsavelDados() {
+    const campo = document.getElementById('responsavelImplantacao');
+    if (campo && usuarioAtual && !campo.value.trim()) campo.value = usuarioAtual;
 }
 
 function atualizarOLT(formType) {
@@ -372,7 +513,8 @@ function atualizarOLT(formType) {
 }
 
 function abrirLink(tipo) {
-    const link = document.getElementById(`localizacao${capitalize(tipo)}`).value;
+    const prefix = tipo === 'dados' ? 'Dados' : capitalize(tipo);
+    const link = document.getElementById(`localizacao${prefix}`).value;
     if (link && link.startsWith('http')) window.open(link, '_blank');
     else mostrarMensagem('Link inválido', 'erro');
 }
@@ -417,6 +559,7 @@ async function fazerLogin() {
         document.getElementById('usuarioLogadoNome').textContent = usuarioAtual;
         preencherResponsavel('implantacao');
         preencherResponsavel('ampliacao');
+        preencherResponsavelDados();
         mostrarMensagem(`Bem-vindo, ${usuarioAtual}!`, 'sucesso');
         
     } catch(e) {
@@ -572,23 +715,36 @@ function buscarPorLocalizacaoAtual(tipo) {
     mostrarMensagem('Obtendo GPS...', 'sucesso');
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-            pos => { document.getElementById(`coordenadas${capitalize(tipo)}`).value = `${pos.coords.latitude}, ${pos.coords.longitude}`; geocodificarCoordenadas(tipo); },
+            pos => { 
+                const prefix = tipo === 'dados' ? 'Dados' : capitalize(tipo);
+                const campoCoords = document.getElementById(`coordenadas${prefix}`);
+                if (campoCoords) {
+                    campoCoords.value = `${pos.coords.latitude}, ${pos.coords.longitude}`;
+                    geocodificarCoordenadas(tipo);
+                }
+            },
             () => mostrarMensagem('Erro ao obter localização', 'erro')
         );
     } else mostrarMensagem('GPS não suportado', 'erro');
 }
 
 function setAddressFieldsEditable(tipo, editable) {
-    document.getElementById(`endereco${capitalize(tipo)}`).readOnly = !editable;
-    document.getElementById(`localizacao${capitalize(tipo)}`).readOnly = !editable;
+    const prefix = tipo === 'dados' ? 'Dados' : capitalize(tipo);
+    const campoEnd = document.getElementById(`endereco${prefix}`);
+    const campoLoc = document.getElementById(`localizacao${prefix}`);
+    if (campoEnd) campoEnd.readOnly = !editable;
+    if (campoLoc) campoLoc.readOnly = !editable;
 }
 
 function setCoordenadasEditable(tipo, editable) {
-    document.getElementById(`coordenadas${capitalize(tipo)}`).readOnly = !editable;
+    const prefix = tipo === 'dados' ? 'Dados' : capitalize(tipo);
+    const campo = document.getElementById(`coordenadas${prefix}`);
+    if (campo) campo.readOnly = !editable;
 }
 
 async function geocodificarCoordenadas(tipo) {
-    const coords = document.getElementById(`coordenadas${capitalize(tipo)}`).value.trim();
+    const prefix = tipo === 'dados' ? 'Dados' : capitalize(tipo);
+    const coords = document.getElementById(`coordenadas${prefix}`).value.trim();
     if (!coords) { mostrarMensagem('Insira coordenadas', 'erro'); return; }
     const partes = coords.replace(/,/g, ' ').split(/\s+/).filter(p => p);
     if (partes.length < 2) { mostrarMensagem('Formato inválido', 'erro'); return; }
@@ -599,25 +755,42 @@ async function geocodificarCoordenadas(tipo) {
         if (data.address) {
             const addr = data.address;
             let end = `${addr.road || 'Rua'} ${addr.house_number || ''}, ${addr.city || ''} ${addr.state_abbr || ''}`.trim();
-            document.getElementById(`endereco${capitalize(tipo)}`).value = end;
-            document.getElementById(`localizacao${capitalize(tipo)}`).value = `https://www.google.com/maps?q=${lat},${lon}`;
+            const campoEnd = document.getElementById(`endereco${prefix}`);
+            const campoLoc = document.getElementById(`localizacao${prefix}`);
+            if (campoEnd) campoEnd.value = end;
+            if (campoLoc) campoLoc.value = `https://www.google.com/maps?q=${lat},${lon}`;
             mostrarMensagem('Endereço encontrado', 'sucesso');
         }
     } catch(e) { mostrarMensagem('Erro na busca', 'erro'); }
 }
 
 async function geocodificarEndereco(tipo) {
-    const end = document.getElementById(`endereco${capitalize(tipo)}`).value.trim();
+    const prefix = tipo === 'dados' ? 'Dados' : capitalize(tipo);
+    const end = document.getElementById(`endereco${prefix}`).value.trim();
     if (!end) { mostrarMensagem('Insira um endereço', 'erro'); return; }
     try {
         const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(end)}&limit=1`, { headers: { 'User-Agent': 'Sistema/1.0' } });
         const data = await resp.json();
         if (data.length > 0) {
-            document.getElementById(`coordenadas${capitalize(tipo)}`).value = `${data[0].lat}, ${data[0].lon}`;
-            document.getElementById(`localizacao${capitalize(tipo)}`).value = `https://www.google.com/maps?q=${data[0].lat},${data[0].lon}`;
+            const campoCoords = document.getElementById(`coordenadas${prefix}`);
+            const campoLoc = document.getElementById(`localizacao${prefix}`);
+            if (campoCoords) campoCoords.value = `${data[0].lat}, ${data[0].lon}`;
+            if (campoLoc) campoLoc.value = `https://www.google.com/maps?q=${data[0].lat},${data[0].lon}`;
             mostrarMensagem('Coordenadas encontradas', 'sucesso');
         } else mostrarMensagem('Endereço não encontrado', 'erro');
     } catch(e) { mostrarMensagem('Erro na busca', 'erro'); }
+}
+
+function mostrarObservacao(opcao) {
+    const texto1 = document.getElementById('observacaoTexto1');
+    const texto2 = document.getElementById('observacaoTexto2');
+    if (opcao === 'obs1') {
+        texto1.style.display = 'block';
+        texto2.style.display = 'none';
+    } else {
+        texto1.style.display = 'none';
+        texto2.style.display = 'block';
+    }
 }
 
 function processarMultiplosIds() {
@@ -779,7 +952,117 @@ function mostrarErros(erros) {
 
 function fecharErrosModal() { document.getElementById('errosModal').style.display = 'none'; }
 
+function validarCamposDados() {
+    const erros = [];
+    const campos = [
+        {id:'clienteDados', nome:'Cliente'},
+        {id:'coordenadasDados', nome:'Coordenadas'},
+        {id:'enderecoDados', nome:'Endereço'},
+        {id:'localizacaoDados', nome:'Localização (Link do Mapa)'},
+        {id:'pontoReferenciaDados', nome:'Ponto de referência'},
+        {id:'popOrigemDados', nome:'Pop de origem'},
+        {id:'dataLimiteDados', nome:'Data limite para entrega'},
+        {id:'terminacaoDados', nome:'Terminação no cliente'}
+    ];
+    
+    campos.forEach(c => { 
+        const el = document.getElementById(c.id); 
+        if(el) el.classList.remove('invalido'); 
+    });
+    
+    for (const c of campos) {
+        const el = document.getElementById(c.id);
+        if (!el) continue;
+        const val = el.value.trim();
+        if (!val) { 
+            erros.push(`${c.nome} não pode estar vazio`); 
+            el.classList.add('invalido'); 
+        }
+    }
+    
+    // Verifica a data
+    const dataLimite = document.getElementById('dataLimiteDados').value;
+    if (dataLimite) {
+        const hoje = new Date().toISOString().split('T')[0];
+        if (dataLimite < hoje) {
+            erros.push('Data limite para entrega não pode ser anterior à data atual');
+            document.getElementById('dataLimiteDados').classList.add('invalido');
+        }
+    }
+    
+    // Verifica se alguma observação foi selecionada
+    const obs1 = document.getElementById('obs1').checked;
+    const obs2 = document.getElementById('obs2').checked;
+    if (!obs1 && !obs2) {
+        erros.push('Selecione uma opção de Observação');
+    }
+    
+    return erros;
+}
+
+function gerarTextoDados() {
+    const erros = validarCamposDados();
+    if (erros.length > 0) { mostrarErros(erros); return; }
+    
+    const cliente = document.getElementById('clienteDados').value;
+    const coordenadas = document.getElementById('coordenadasDados').value;
+    const endereco = document.getElementById('enderecoDados').value;
+    const localizacao = document.getElementById('localizacaoDados').value;
+    const pontoRef = document.getElementById('pontoReferenciaDados').value;
+    const popOrigem = document.getElementById('popOrigemDados').value;
+    const dataLimite = document.getElementById('dataLimiteDados').value;
+    // Converte data de YYYY-MM-DD para DD/MM/YYYY
+    const partesData = dataLimite.split('-');
+    const dataFormatada = `${partesData[2]}/${partesData[1]}/${partesData[0]}`;
+    const terminacao = document.getElementById('terminacaoDados').value;
+    
+    let texto = "MÁSCARA – ABERTURA DE O.S INFRAESTRUTURA\n\n";
+    texto += "Implantação de Infraestrutura – Link Dedicado\n\n";
+    texto += `Cliente: ${cliente}\n\n`;
+    texto += `Coordenadas: ${coordenadas}\n\n`;
+    texto += `Endereço: ${endereco}\n\n`;
+    texto += `Localização (Link do Mapa): ${localizacao}\n\n`;
+    texto += `Ponto de referência: ${pontoRef}\n\n`;
+    texto += `Pop de origem: ${popOrigem}\n\n`;
+    texto += `Data limite para entrega: ${dataFormatada}\n\n`;
+    texto += `Terminação no cliente: ${terminacao}\n\n`;
+    
+    texto += "Observações:\n";
+    if (document.getElementById('obs1').checked) {
+        texto += document.getElementById('observacaoTexto1').value || "Infraestrutura responsável apenas pela entrega da fibra apagada, e passar as seguintes informações ao projetista, quando finalizado: distancia estimada do POP até o cliente, se precisou lançar cabo ou reaproveitou cabeamento existente, cor/número da FO utilizada, testes ópticos (teste OTDR) e traçado da fibra. Ativação e configuração do circuito serão realizadas por outra equipe.";
+    } else if (document.getElementById('obs2').checked) {
+        texto += document.getElementById('observacaoTexto2').value || "Infraestrutura responsável pela entrega da instalação, e passar as seguintes informações ao projetista, quando finalizado: distancia estimada do POP até o cliente, se precisou lançar cabo ou reaproveitou cabeamento existente, cor/número da FO utilizada, testes ópticos (teste OTDR) e traçado da fibra. Ativação e configuração do circuito serão realizadas por outra equipe.";
+    }
+    texto += "\n";
+    
+    navigator.clipboard.writeText(texto);
+    mostrarMensagem('✅ OS de Infraestrutura - Dados gerada com sucesso!', 'sucesso');
+}
+
+function limparFormularioDados() {
+    document.getElementById('clienteDados').value = '';
+    document.getElementById('coordenadasDados').value = '';
+    document.getElementById('enderecoDados').value = '';
+    document.getElementById('localizacaoDados').value = '';
+    document.getElementById('pontoReferenciaDados').value = '';
+    document.getElementById('popOrigemDados').value = '';
+    document.getElementById('dataLimiteDados').value = '';
+    document.getElementById('terminacaoDados').value = '';
+    document.getElementById('observacaoTexto1').style.display = 'none';
+    document.getElementById('observacaoTexto2').style.display = 'none';
+    document.getElementById('obs1').checked = false;
+    document.getElementById('obs2').checked = false;
+    document.getElementById('observacaoTexto1').value = '';
+    document.getElementById('observacaoTexto2').value = '';
+    mostrarMensagem('Formulário limpo com sucesso!', 'sucesso');
+}
+
 async function gerarTexto(tipo) {
+    if (tipo === 'implantacao' && tipoImplantacaoAtual === 'dados') {
+        gerarTextoDados();
+        return;
+    }
+    
     const erros = validarCampos(tipo);
     if (erros.length > 0) { mostrarErros(erros); return; }
     
@@ -896,6 +1179,11 @@ async function gerarTexto(tipo) {
 }
 
 function limparFormulario(tipo) {
+    if (tipo === 'implantacao' && tipoImplantacaoAtual === 'dados') {
+        limparFormularioDados();
+        return;
+    }
+    
     document.getElementById(tipo).reset();
     if (tipo === 'ampliacao') {
         document.getElementById('oltAmpliacao').value = '';
