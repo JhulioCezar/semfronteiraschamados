@@ -1105,6 +1105,16 @@ async function gerarTexto(tipo) {
         const resp = document.getElementById('responsavelAmpliacao').value;
         const mot = getMotivoFinalAmpliacao();
         const hoje = new Date().toLocaleDateString('pt-BR');
+        const idsTexto = document.getElementById('idAmpliacao').value.trim();
+        
+        // Formatar IDs em uma única linha (separados por vírgula e espaço)
+        let idsFormatados = '';
+        if (qtd === 1) {
+            idsFormatados = idsTexto;
+        } else {
+            const idsList = idsTexto.split(',').map(id => id.trim()).filter(id => id);
+            idsFormatados = idsList.join(', ');
+        }
         
         let existentes = [];
         let detalhesIds = [];
@@ -1143,20 +1153,20 @@ async function gerarTexto(tipo) {
             return;
         }
         
+        // TEXTO ÚNICO COM TODOS OS IDs EM SEQUÊNCIA
         let texto = "Dados da Ampliação\n\n";
+        texto += `Endereço: ${end}\n\n`;
+        texto += `Localização: ${loc}\n\n`;
+        texto += `Coordenadas: ${coord}\n\n`;
+        texto += `Quantidade: ${qtd}\n\n`;
+        texto += `ID(s): ${idsFormatados}\n\n`;
+        texto += `Projeto: ${proj}\n\n`;
+        texto += `OLT: ${olt}\n\n`;
+        texto += `Responsável: ${resp}\n\n`;
+        texto += `Motivo: ${mot}\n\n`;
         
+        // Salvar cada ID individualmente no banco
         for (const id of ids) {
-            texto += `Endereço: ${end}\n\n`;
-            texto += `Localização: ${loc}\n\n`;
-            texto += `Coordenadas: ${coord}\n\n`;
-            texto += `Quantidade: 1\n\n`;
-            texto += `ID(s): ${id}\n\n`;
-            texto += `Projeto: ${proj}\n\n`;
-            texto += `OLT: ${olt}\n\n`;
-            texto += `Responsável: ${resp}\n\n`;
-            texto += `Motivo: ${mot}\n\n`;
-            texto += `----------------------------------------\n\n`;
-            
             await supabaseClient.from('chamados').insert({ 
                 id_cto: id, 
                 data: hoje, 
