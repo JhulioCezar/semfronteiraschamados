@@ -773,14 +773,69 @@ async function geocodificarCoordenadas(tipo) {
         const data = await resp.json();
         if (data.address) {
             const addr = data.address;
-            let end = `${addr.road || 'Rua'} ${addr.house_number || ''}, ${addr.city || ''} ${addr.state_abbr || ''}`.trim();
+            
+            // Monta o endereço completo
+            let enderecoCompleto = [];
+            
+            // Número
+            if (addr.house_number) {
+                enderecoCompleto.push(addr.house_number);
+            }
+            
+            // Rua
+            if (addr.road) {
+                enderecoCompleto.push(addr.road);
+            }
+            
+            // Bairro
+            if (addr.suburb) {
+                enderecoCompleto.push(addr.suburb);
+            }
+            
+            // Cidade
+            let cidade = addr.city || addr.town || addr.village || addr.municipality;
+            if (cidade) {
+                enderecoCompleto.push(cidade);
+            }
+            
+            // Estado (sigla)
+            if (addr.state) {
+                const siglaEstado = addr.state_code ? addr.state_code.toUpperCase() : addr.state;
+                enderecoCompleto.push(siglaEstado);
+            }
+            
+            // Monta o endereço final
+            let enderecoFinal = enderecoCompleto.join(', ');
+            
+            // Se não tiver número, adiciona "s/n"
+            if (!addr.house_number && enderecoFinal.includes(addr.road)) {
+                enderecoFinal = enderecoFinal.replace(addr.road, `${addr.road}, s/n`);
+            }
+            
+            // Se ainda estiver muito simples, tenta usar o display_name
+            if (enderecoFinal === 's/n' || enderecoFinal === addr.road) {
+                enderecoFinal = data.display_name;
+            }
+            
             const campoEnd = document.getElementById(`endereco${prefix}`);
             const campoLoc = document.getElementById(`localizacao${prefix}`);
-            if (campoEnd) campoEnd.value = end;
-            if (campoLoc) campoLoc.value = `https://www.google.com/maps?q=${lat},${lon}`;
-            mostrarMensagem('Endereço encontrado', 'sucesso');
+            
+            if (campoEnd) {
+                campoEnd.value = enderecoFinal;
+            }
+            
+            if (campoLoc) {
+                campoLoc.value = `https://www.google.com/maps?q=${lat},${lon}`;
+            }
+            
+            mostrarMensagem('Endereço encontrado com sucesso!', 'sucesso');
+        } else {
+            mostrarMensagem('Endereço não encontrado para estas coordenadas', 'erro');
         }
-    } catch(e) { mostrarMensagem('Erro na busca', 'erro'); }
+    } catch(e) { 
+        console.error(e);
+        mostrarMensagem('Erro na busca do endereço', 'erro'); 
+    }
 }
 
 async function geocodificarEndereco(tipo) {
