@@ -9,6 +9,7 @@
     <link rel="apple-touch-icon" href="android-icon-192x192.png">
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         body{font-family:Arial,sans-serif;padding:20px;background:linear-gradient(135deg,#007bff 0%,#00c6ff 100%);background-attachment:fixed;min-height:100vh}
@@ -398,8 +399,9 @@
 <div class="footer">Desenvolvido por Jhulio Soluções</div>
 
 <script>
-const SUPABASE_URL = 'https://oikjeybrhyiccaqrtcws.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9pa2pleWJyaHlpY2NhcXJ0Y3dzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NzUxMDYsImV4cCI6MjA5NTU1MTEwNn0.OJOOyBCfqJl5HtYJfPFs-1LESN3e3vMdZthwNFGJ7xo';
+// Carrega as chaves do arquivo config.js
+const SUPABASE_URL = CONFIG.SUPABASE_URL;
+const SUPABASE_ANON_KEY = CONFIG.SUPABASE_ANON_KEY;
 
 let supabaseClient = null;
 let usuarioAtual = '';
