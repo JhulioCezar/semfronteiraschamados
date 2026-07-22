@@ -1,0 +1,14 @@
+# Configurações com chaves
+config.js
+*.env
+*.env.local
+*.env.*.local
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Pastas de dependências
+node_modules/
+.vscode/
+.idea/
