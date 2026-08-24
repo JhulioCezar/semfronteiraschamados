@@ -1,12 +1,3 @@
-// Apenas um service worker básico para registro
-self.addEventListener('fetch', function(event) {
-  // Isso não faz nada, apenas para satisfazer o requisito mínimo do PWA
-});
-
-self.addEventListener('install', (event) => {
-  console.log('Service Worker instalado.');
-});
-
-self.addEventListener('activate', (event) => {
-  console.log('Service Worker ativado.');
-});
+self.addEventListener('install',()=>self.skipWaiting());
+self.addEventListener('activate',event=>event.waitUntil((async()=>{const names=await caches.keys();await Promise.all(names.map(name=>caches.delete(name)));await self.registration.unregister();const clientsList=await self.clients.matchAll({type:'window'});clientsList.forEach(client=>client.navigate(client.url))})()));
+self.addEventListener('fetch',()=>{});
